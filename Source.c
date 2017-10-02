@@ -13,8 +13,41 @@ int main(int argc, const char** argv) {
 
 	int dim, ndata, k;
 	double max_double;
-	unsigned int seedArray[4] = { 5, 6, 7, 8 };
-	unsigned int querySeed = QSEED;
+	unsigned int seedArray[4];
+	unsigned int querySeed;
+	if (SEED_SET == 1)
+	{
+		seedArray[1] = 1;
+		seedArray[2] = 2;
+		seedArray[3] = 3;
+		seedArray[4] = 4;
+		querySeed = 722;
+	}
+	else if (SEED_SET == 2)
+	{
+		seedArray[1] = 5;
+		seedArray[2] = 6;
+		seedArray[3] = 7;
+		seedArray[4] = 8;
+		querySeed = 144;
+	}
+	else if (SEED_SET == 3)
+	{
+		seedArray[1] = 9;
+		seedArray[2] = 10;
+		seedArray[3] = 11;
+		seedArray[4] = 12;
+		querySeed = 314;
+	}
+	else
+	{
+		seedArray[1] = 13;
+		seedArray[2] = 14;
+		seedArray[3] = 15;
+		seedArray[4] = 16;
+		querySeed = QSEED;
+	}
+
 
 	printf("\nChecking...\n");
 
@@ -99,6 +132,37 @@ int main(int argc, const char** argv) {
 	}
 
 	//At this point, every process has a data array of the correct size and the query point and all of the arguments.
+	//Now begin building the kmeans structure.
+/******************************************************************************************************************/
+
+struct kmeans * KM = NULL;
+
+initializeKM(&KM,dim,subdomain,dataArray,k);
+GetKCentroids(KM);
+if (DISPLAY_KM_INIT) { displayKM(KM); }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/**********************************************************************************************************************************/
+
+
+
+
 	//Use brute force search to find the nearest point.
 
 	double * result = (double *)malloc(sizeof(double)*dim);

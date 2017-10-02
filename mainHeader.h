@@ -19,8 +19,14 @@
 #define MAX_DOUBLE 50.00
 #define MCW MPI_COMM_WORLD
 #define QSEED 30
+#define SEED_SET 1
+#define FIRST_CENTROID_SEED 13
+
+
+
 #define DEBUG 0
-#define DEBUG_RANDOM 1
+#define DEBUG_RANDOM 0
+#define DISPLAY_KM_INIT 1
 
 /* Data Structures */
 
@@ -31,6 +37,18 @@ enum isNumStates {
 	NUMBER,
 	DECIMAL,
 	ERROR
+};
+
+struct kmeans {
+	int dim;
+	int ndata;
+	double * data;
+	int k;
+	int * cluster_size;
+	int * cluster_start;
+	double * cluster_radius;
+	double ** cluster_centroid;
+	int * cluster_assign;
 };
 
 /* Prototypes */
@@ -48,5 +66,32 @@ int generateRandomArray(double * dataArray, int subdomain, double max_double, in
 double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult);
 
 int findMinimum(double * Array, int size, double * minimum, int stride);
+
+/* initialize the kmeans structure */
+
+void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k);
+
+int * allocateAndInitializeZeroInt(int size_of_target);
+
+double ** allocateAndInitializeZeroDoubleMulti(int k, int dimension);
+
+double * allocateAndInitializeZeroDouble(int size_of_target);
+
+/* debugging displays */
+
+void displayKM(struct kmeans * KM);
+
+void printArraysInt(int * ArrayInt, int size, const char * text);
+
+void printArraysDouble(double ** ArrayDouble, int size, int dim, const char * text);
+
+void printArrayKMD(double * array, int size);
+
+void printDataArray(double * dataArray, int dim, int ndata);
+
+/* GetKCentroids.c */
+
+void GetKCentroids(struct kmeans * KM);
+
 
 #endif

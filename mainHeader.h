@@ -47,6 +47,6 @@ int generateRandomArray(double * dataArray, int subdomain, double max_double, in
 
 double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult);
 
-int findMinimum(double * Array, int size, double * minimum);
+int findMinimum(double * Array, int size, double * minimum, int stride);
 
 #endif

@@ -13,7 +13,7 @@ int main(int argc, const char** argv) {
 
 	int dim, ndata, k;
 	double max_double;
-	unsigned int seedArray[4] = { 1, 2, 3, 4 };
+	unsigned int seedArray[4] = { 5, 6, 7, 8 };
 	unsigned int querySeed = QSEED;
 
 	printf("\nChecking...\n");
@@ -58,9 +58,9 @@ int main(int argc, const char** argv) {
 
 	double * dataArray = (double *)malloc(sizeof(double)*subdomain*dim);
 	double * query = (double *)malloc(sizeof(double)*dim);
-	
+
 	if (world_rank == 0)
-	{	
+	{
 		generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank]);
 		generateRandomArray(query, dim, max_double,1, &querySeed);
 		printf("Query Point in rank = %d =>", world_rank);
@@ -71,15 +71,15 @@ int main(int argc, const char** argv) {
 			MPI_Barrier(MCW);
 		}
 	}
-	else 
-	{		
-		generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds]);		
+	else
+	{
+		generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds]);
 		MPI_Bcast(query, 2, MPI_DOUBLE, 0, MCW);
-		MPI_Barrier(MCW); 
+		MPI_Barrier(MCW);
 		printf("Query Point in rank = %d =>",world_rank);
 		printArrayDoubles(query, 1, dim);
 	}
-	
+
 	if (DEBUG_RANDOM)
 	{
 		int i, j, first_index;
@@ -97,43 +97,45 @@ int main(int argc, const char** argv) {
 		printf("] %d \n", world_rank);
 		MPI_Barrier(MPI_COMM_WORLD);
 	}
-	
+
 	//At this point, every process has a data array of the correct size and the query point and all of the arguments.
 	//Use brute force search to find the nearest point.
 
 	double * result = (double *)malloc(sizeof(double)*dim);
 	int i,minLoc;
 	for (i = 0; i < dim; i++) { result[i] = query[i]; }
-	double * Bresult = (double *)malloc(sizeof(double)*dim);
-	double * minDistances = (double *)malloc(sizeof(double)*world_size);
+	double * LocalBresult = (double *)malloc(sizeof(double)*(dim+1));
+	double * allDistPoints = (double *)malloc(sizeof(double)*(dim+1)*world_size);
+	double absMinDist;
 
-	double minDist = bruteForceSearch(dataArray, query, dim, subdomain, result, Bresult);
-	double absMinDist = 0;
 
-		
-	MPI_Allgather(&minDist, 1, MPI_DOUBLE, minDistances, 1, MPI_DOUBLE, MCW);
+	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, result, LocalBresult);
+
+	MPI_Gather(LocalBresult, dim + 1, MPI_DOUBLE, allDistPoints, dim + 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 	if (world_rank == 0)
 	{
-		minLoc = findMinimum(minDistances, world_size, &absMinDist);
+		minLoc = findMinimum(allDistPoints, (dim+1)*world_size, &absMinDist, dim+1);
+		printf("minLoc = %d \n",minLoc);
+		printArrayDoubles(allDistPoints,world_size,dim+1);
+		printf("absMinDist = %lf in rank %d \n",absMinDist,world_rank);
+		printArrayDoubles(&allDistPoints[minLoc+1], dim, 1);
+
 	}
-	MPI_Bcast(&absMinDist, 1, MPI_DOUBLE, 0, MCW);
-	MPI_Barrier(MCW);
-
-	
-
-	printf("minDistances in rank %d: \n",world_rank);
-	printArrayDoubles(minDistances, world_size, 1);
-	printf("absMinDist = %lf in rank %d \n",absMinDist,world_rank);
-	
-	
-
-	
 
 
-	
-	
-	
+
+
+
+
+
+
+
+
+
+
+
+
 
 	MPI_Finalize();
 }

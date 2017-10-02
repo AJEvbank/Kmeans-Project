@@ -247,11 +247,11 @@ double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, 
 			minDist = calcDist;
 			nearestPoint = i;
 		}
-	}	
+	}
 	first_index = nearestPoint * dim;
 	for (i = 0; i < dim; i++)
-	{		
-		Bresult[i] = dataArray[(first_index) + i];
+	{
+		Bresult[i+1] = dataArray[(first_index) + i];
 		if (dataArray[(first_index) + i] != result[i])
 		{
 			isResult = 0;
@@ -260,19 +260,20 @@ double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, 
 	return minDist;
 }
 
-int findMinimum(double * Array, int size, double * minimum)
+int findMinimum(double * Array, int size, double * minimum, int stride)
 {
-	int index = 0, i;
+	int minIndex = 0, i;
 	*minimum = INFINITY;
-	for (i = 0; i < size; i++)
+	for (i = 0; i < size; i+=stride)
 	{
+		printf("Array[%d] = %lf \n",i,Array[i]);
 		if (Array[i] < *minimum)
 		{
 			*minimum = Array[i];
-			index = i;
+			minIndex = i;
 		}
 	}
-	return index;
+	return minIndex;
 }
 
 

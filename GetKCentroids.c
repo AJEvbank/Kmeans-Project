@@ -13,8 +13,61 @@ void GetKCentroids(struct kmeans * KM)
 
   /* 2. Select each subsequent centroid based on the max-of-the-min criteria given in class. */
 
-
-
-
+  int numClusters = 1;
+  while (numClusters < KM->k)
+  {
+    numClusters = GetNextCluster(KM,numClusters);
+  }
   return;
+}
+
+int GetNextCluster(struct kmeans * KM, int numCentroids)
+{
+  int i,j,nextCentroid,first_index;
+  double * minDistArray = allocateAndInitializeZeroDouble((KM->ndata));
+  double minDist = INFINITY,maxminDist = -INFINITY, distance;
+
+  for (i = 0; i < KM->ndata; i++)
+  {
+    first_index = (KM->dim) * i;
+    minDist = INFINITY;
+    for (j = 0; j < numCentroids; j++)
+    {
+      distance = GetDistance2Points(KM,first_index,j);
+      if (DEBUG_SELECTK) printf("distance between %d and centroid %d = %lf \n",i,j,distance);
+      if (distance < minDist)
+      {
+        minDist = distance;
+        minDistArray[i] = distance;
+      }
+    }
+  }
+  if (DEBUG_SELECTK) { printf("minDistArray:\n");
+  printArrayKMD(minDistArray,KM->ndata); }
+  for (i = 0; i < KM->ndata; i++)
+  {
+    if (minDistArray[i] > maxminDist)
+    {
+      maxminDist = minDistArray[i];
+      nextCentroid = i;
+    }
+  }
+  if (DEBUG_SELECTK) printf("minDistArray[%d] = %lf, maxminDist = %lf \n",nextCentroid,minDistArray[nextCentroid],maxminDist);
+  for (i = 0; i < KM->dim; i++)
+  {
+    (KM->cluster_centroid)[numCentroids][i] = (KM->data)[(nextCentroid * KM->dim) + i];
+  }
+  return numCentroids + 1;
+}
+
+double GetDistance2Points(struct kmeans *KM, int first_index, int centroid)
+{
+  int i;
+  double distCalc = 0;
+  for (i = 0; i < KM->dim; i++)
+  {
+    distCalc += pow( fabs((KM->data)[first_index + i] - (KM->cluster_centroid)[centroid][i]), 2);
+  }
+  distCalc = sqrt(distCalc);
+  return distCalc;
 }

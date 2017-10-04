@@ -27,6 +27,7 @@
 #define DEBUG 0
 #define DEBUG_RANDOM 0
 #define DISPLAY_KM_INIT 1
+#define DEBUG_SELECTK 0
 
 /* Data Structures */
 
@@ -93,5 +94,8 @@ void printDataArray(double * dataArray, int dim, int ndata);
 
 void GetKCentroids(struct kmeans * KM);
 
+int GetNextCluster(struct kmeans * KM, int numClusters);
+
+double GetDistance2Points(struct kmeans *KM, int first_index, int centroid);
 
 #endif

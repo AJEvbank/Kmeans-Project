@@ -1,15 +1,15 @@
 #include "mainHeader.h"
 
-int main(int argc, const char** argv) {
+int main(int argc, char** argv) {
 
 	// Initialize the MPI environment
-	MPI_Init(NULL, NULL);
+	MPI_Init(&argc, &argv);
 	// Find out rank, size
 	int world_rank;
 	MPI_Comm_rank(MPI_COMM_WORLD, &world_rank);
 	int world_size;
 	MPI_Comm_size(MPI_COMM_WORLD, &world_size);
-	MPI_Status status;
+	//MPI_Status status;
 
 	int dim, ndata, k;
 	double max_double;
@@ -51,34 +51,8 @@ int main(int argc, const char** argv) {
 
 	printf("\nChecking...\n");
 
-	if (world_rank == 0)
-	{
-		getCmdArgs(argc, argv, &dim, &ndata, &k,&max_double);
-		if (world_size > 1)
-		{
-			MPI_Bcast(&dim, 1, MPI_INT, 0, MPI_COMM_WORLD);
-			MPI_Barrier(MPI_COMM_WORLD);
-			MPI_Bcast(&ndata, 1, MPI_INT, 0, MPI_COMM_WORLD);
-			MPI_Barrier(MPI_COMM_WORLD);
-			MPI_Bcast(&k, 1, MPI_INT, 0, MPI_COMM_WORLD);
-			MPI_Barrier(MPI_COMM_WORLD);
-			MPI_Bcast(&max_double, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-			MPI_Barrier(MPI_COMM_WORLD);
-		}
-		printf("From world_rank %d, dim = %d, ndata = %d, k = %d max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
-	}
-	else
-	{
-		MPI_Bcast(&dim, 1, MPI_INT, 0, MPI_COMM_WORLD);
-		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Bcast(&ndata, 1, MPI_INT, 0, MPI_COMM_WORLD);
-		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Bcast(&k, 1, MPI_INT, 0, MPI_COMM_WORLD);
-		MPI_Barrier(MPI_COMM_WORLD);
-		MPI_Bcast(&max_double, 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-		MPI_Barrier(MPI_COMM_WORLD);
-		printf("From world_rank %d, dim = %d, ndata = %d, k = %d max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
-	}
+	getCmdArgs(argc, argv, &dim, &ndata, &k,&max_double);
+	printf("From world_rank %d, dim = %d, ndata = %d, k = %d max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
 
 	int subdomain = ndata / (world_size);
 	if (world_rank == world_size - 1)
@@ -137,10 +111,10 @@ int main(int argc, const char** argv) {
 
 struct kmeans * KM = NULL;
 
-initializeKM(&KM,dim,subdomain,dataArray,k);
+initializeKM(&KM,dim,ndata,dataArray,k);
 GetKCentroids(KM);
+ClusterizeKM(KM, THRESHOLD);
 if (DISPLAY_KM_INIT) { displayKM(KM); }
-
 
 
 
@@ -195,7 +169,10 @@ if (DISPLAY_KM_INIT) { displayKM(KM); }
 
 
 
-
+if (WRITE_RESULTS)
+{
+	writeResults(dim,ndata, dataArray, KM->cluster_assign);
+}
 
 
 

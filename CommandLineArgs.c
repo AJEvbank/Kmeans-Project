@@ -5,7 +5,7 @@
 
 #include "mainHeader.h"
 
-void getCmdArgs(int argc, const char ** argv, int * dim, int * ndata, int * k, double * max_double)
+void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double)
 {
 	if (argc >= 2)
 	{
@@ -188,31 +188,6 @@ int isNumber(const char * str)
 	}
 }
 
-void printArray(int * nums, int count)
-{
-	int i;
-	for (i = 0; i < count; i++)
-	{
-		printf("%d ", nums[i]);
-	}
-	printf("\n");
-}
-
-void printArrayDoubles(double * nums, int ndata, int dim)
-{
-	int i,j,first_index;
-	for (i = 0; i < ndata; i++)
-	{
-		first_index = i * dim;
-		for (j = 0; j < dim; j++)
-		{
-			printf("%lf ", nums[first_index + j]);
-		}
-		printf("\n");
-	}
-	printf("\n");
-}
-
 int generateRandomArray(double * dataArray, int domain, double max_double, int seeds, unsigned int * seedArray)
 {
 	int i,j,first_index;
@@ -231,7 +206,8 @@ int generateRandomArray(double * dataArray, int domain, double max_double, int s
 
 double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult)
 {
-	int first_index, i, j, nearestPoint, isResult = 1;
+	int first_index, i, j, nearestPoint;
+	//int isResult = 1;
 	double minDist = INFINITY, calcDist = 0;
 	for (i = 0; i < ndata; i++)
 	{
@@ -252,10 +228,10 @@ double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, 
 	for (i = 0; i < dim; i++)
 	{
 		Bresult[i+1] = dataArray[(first_index) + i];
-		if (dataArray[(first_index) + i] != result[i])
-		{
-			isResult = 0;
-		}
+		// if (dataArray[(first_index) + i] != result[i])
+		// {
+		// 	isResult = 0;
+		// }
 	}
 	return minDist;
 }

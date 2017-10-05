@@ -33,7 +33,7 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
     minDist = INFINITY;
     for (j = 0; j < numCentroids; j++)
     {
-      distance = GetDistance2Points(KM,first_index,j);
+      distance = GetDistance2PointsDC(KM,first_index,j);
       if (DEBUG_SELECTK) printf("distance between %d and centroid %d = %lf \n",i,j,distance);
       if (distance < minDist)
       {
@@ -60,7 +60,7 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
   return numCentroids + 1;
 }
 
-double GetDistance2Points(struct kmeans *KM, int first_index, int centroid)
+double GetDistance2PointsDC(struct kmeans *KM, int first_index, int centroid)
 {
   int i;
   double distCalc = 0;

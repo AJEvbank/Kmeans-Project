@@ -21,6 +21,7 @@
 #define QSEED 30
 #define SEED_SET 1
 #define FIRST_CENTROID_SEED 13
+#define THRESHOLD 2
 
 
 
@@ -28,6 +29,9 @@
 #define DEBUG_RANDOM 0
 #define DISPLAY_KM_INIT 1
 #define DEBUG_SELECTK 0
+#define DEBUG_ASSIGN 1
+
+#define WRITE_RESULTS 1
 
 /* Data Structures */
 
@@ -54,7 +58,7 @@ struct kmeans {
 
 /* Prototypes */
 
-void getCmdArgs(int argc, const char ** argv, int * dim, int * ndata, int * k, double * max_double);
+void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double);
 
 int isNumber(const char * str);
 
@@ -90,12 +94,23 @@ void printArrayKMD(double * array, int size);
 
 void printDataArray(double * dataArray, int dim, int ndata);
 
+void writeResults(int dim, int ndata, double* data, int* cluster_assign);
+
 /* GetKCentroids.c */
 
 void GetKCentroids(struct kmeans * KM);
 
 int GetNextCluster(struct kmeans * KM, int numClusters);
 
-double GetDistance2Points(struct kmeans *KM, int first_index, int centroid);
+double GetDistance2PointsDC(struct kmeans *KM, int first_index, int centroid);
+
+/* ClusterizeKM.c */
+
+void ClusterizeKM(struct kmeans * KM, int threshold);
+
+void AssignDPs(struct kmeans * KM);
+
+
+
 
 #endif

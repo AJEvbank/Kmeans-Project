@@ -91,3 +91,44 @@ void printDataArray(double * dataArray, int dim, int ndata)
 	}
 	return;
 }
+
+void writeResults(int dim, int ndata, double* data, int* cluster_assign)
+{
+	int i;
+	FILE* file = fopen("data.txt", "w");
+
+	fprintf(file, "%d\n", dim);
+	fprintf(file, "%d\n", ndata);
+	for (i = 0; i < dim * ndata; i++)
+		fprintf(file, "%lf\n", data[i]);
+
+	for (i = 0; i < ndata; i++)
+		fprintf(file, "%d\n", cluster_assign[i]);
+
+	fclose(file);
+}
+
+void printArray(int * nums, int count)
+{
+	int i;
+	for (i = 0; i < count; i++)
+	{
+		printf("%d ", nums[i]);
+	}
+	printf("\n");
+}
+
+void printArrayDoubles(double * nums, int ndata, int dim)
+{
+	int i,j,first_index;
+	for (i = 0; i < ndata; i++)
+	{
+		first_index = i * dim;
+		for (j = 0; j < dim; j++)
+		{
+			printf("%lf ", nums[first_index + j]);
+		}
+		printf("\n");
+	}
+	printf("\n");
+}

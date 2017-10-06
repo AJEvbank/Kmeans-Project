@@ -177,6 +177,7 @@ if (WRITE_RESULTS)
 
 
 
-
+	free(dataArray);
+	free(query);
 	MPI_Finalize();
 }

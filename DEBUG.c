@@ -15,7 +15,7 @@ void displayKM(struct kmeans * KM)
 	printArraysInt(KM->cluster_start, KM->k, "start of cluster");
 
 	printf("cluster_radius: \n");
-	printArrayKMD(KM->cluster_radius, KM->k);
+	printArrayDouble(KM->cluster_radius, KM->k, "radius of cluster");
 
 	printf("cluster_centroid: \n");
 	printArraysDouble(KM->cluster_centroid, KM->k, KM->dim, "centroid of cluster");
@@ -23,8 +23,8 @@ void displayKM(struct kmeans * KM)
 	printf("cluster_assign: \n");
 	printArraysInt(KM->cluster_assign, KM->ndata, "cluster of DP");
 
-	printf("cluster_group: \n");
-	printArraysInt(KM->cluster_group, KM->ndata, "data point-> ");
+	// printf("cluster_group: \n");
+	// printArraysInt(KM->cluster_group, KM->ndata, "data point-> ");
 
 	return;
 }
@@ -134,4 +134,33 @@ void printArrayDoubles(double * nums, int ndata, int dim)
 		printf("\n");
 	}
 	printf("\n");
+}
+
+void printArrayDouble(double * ArrayDouble, int size, const char * text)
+{
+	int i, j;
+	for (i = 0; i < size; i++)
+	{
+		printf("%s %d = ( ", text, i);
+		for (j = 0; j < 1; j++)
+		{
+			if (j != 0)
+			{
+				printf("%lf,", ArrayDouble[i]);
+			}
+			else
+			{
+				printf("%lf", ArrayDouble[i]);
+			}
+		}
+		if (i != size - 1)
+		{
+			printf("),\n");
+		}
+		else
+		{
+			printf(")\n");
+		}
+	}
+	return;
 }

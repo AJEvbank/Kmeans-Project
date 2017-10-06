@@ -8,25 +8,35 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
     printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid");
     printf("\n\n");
   }
-  int i;
-  for (i = 0; i < threshold; i++)
+  int i,changed;
+  for (i = 0,changed = 1; changed != 0; i++)
   {
 
   /* Assign each data point to the cluster with the nearest centroid */
   AssignDPs(KM);
 
   /* For each cluster, recalculate the centroid based on the data oints newly assigned. */
-  RecalculateCentroids(KM);
+  changed = RecalculateCentroids(KM);
 
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
 
-  if (DEBUG_THRESHOLD)
-  {
-    printf("Centroids on iteration %d/%d \n",i,threshold);
-    printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid");
-    printf("\n\n");
+    if (DEBUG_THRESHOLD)
+    {
+      printf("Centroids on iteration %d/%d \n",i,threshold);
+      printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid");
+      if (changed)
+      {
+        printf("Changes occurred...");
+      }
+      else
+      {
+        printf("No changes occurred...");
+      }
+      printf("\n\n");
+    }
   }
-  }
+  SaveClusters(KM);
+
   return;
 }
 
@@ -54,11 +64,11 @@ void AssignDPs(struct kmeans * KM)
   return;
 }
 
-void RecalculateCentroids(struct kmeans * KM)
+int RecalculateCentroids(struct kmeans * KM)
 {
   int * newClusterSizes = allocateAndInitializeZeroInt(KM->k);
   double * centroids = allocateAndInitializeZeroDouble(KM->k * KM->dim);
-  int i,j,group,group_coordinate,first_index;
+  int i,j,group,group_coordinate,first_index,changed = 0;
 
   /* Get the sum of each dimension in each cluster */
   for ( i = 0; i < KM->ndata; i++)
@@ -89,17 +99,35 @@ void RecalculateCentroids(struct kmeans * KM)
     first_index = i * KM->dim;
     for ( j = 0; j < KM->dim; j++)
     {
-      (KM->cluster_centroid)[i][j] = centroids[first_index + j];
+      if ((KM->cluster_centroid)[i][j] != centroids[first_index + j])
+      {
+        (KM->cluster_centroid)[i][j] = centroids[first_index + j];
+        changed = 1;
+      }
     }
   }
 
   /* Save the newly calculated cluster sizes in the kmeans structure. */
   for ( i = 0; i < KM->k; i++)
   {
-    (KM->cluster_size)[i] = newClusterSizes[i];
+    if ((KM->cluster_size)[i] != newClusterSizes[i])
+    {
+      (KM->cluster_size)[i] = newClusterSizes[i];
+      changed = 1;
+    }
   }
 
   free(newClusterSizes);
   free(centroids);
+  return changed;
+}
+
+void SaveClusters(struct kmeans * KM)
+{
+  
+
+
+
+
   return;
 }

@@ -111,7 +111,7 @@ int main(int argc, char** argv) {
 
 struct kmeans * KM = NULL;
 
-initializeKM(&KM,dim,ndata,dataArray,k);
+initializeKM(&KM,dim,ndata,subdomain,dataArray,k);
 GetKCentroids(KM);
 ClusterizeKM(KM, THRESHOLD);
 if (DISPLAY_KM_INIT) { displayKM(KM); }

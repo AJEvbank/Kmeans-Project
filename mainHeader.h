@@ -14,8 +14,8 @@
 /* MACROS */
 
 #define DIM 2
-#define NDATA 40
-#define K 4
+#define NDATA 200
+#define K 10
 #define MAX_DOUBLE 50.00
 #define MCW MPI_COMM_WORLD
 #define QSEED 30
@@ -32,6 +32,7 @@
 #define DEBUG_SELECTK 0
 #define DEBUG_ASSIGN 0
 #define DEBUG_THRESHOLD 0
+#define DEBUG_QS 0
 
 #define WRITE_RESULTS 1
 
@@ -49,6 +50,7 @@ enum isNumStates {
 struct kmeans {
 	int dim;
 	int ndata;
+	int subdomain;
 	double * data;
 	int k;
 	int * cluster_size;
@@ -77,7 +79,7 @@ int findMinimum(double * Array, int size, double * minimum, int stride);
 
 /* initialize the kmeans structure */
 
-void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k);
+void initializeKM(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dataArray, int k);
 
 int * allocateAndInitializeZeroInt(int size_of_target);
 
@@ -126,6 +128,8 @@ void quickSort( struct kmeans * KM, int l, int r);
 
 int partition( struct kmeans * KM, int l, int r);
 
-void SwapPoints(KM,int left,int right);
+void SwapPoints(struct kmeans * KM,int left,int right);
+
+void SortDataArray(struct kmeans * KM);
 
 #endif

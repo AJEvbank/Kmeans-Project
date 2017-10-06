@@ -17,6 +17,7 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
 
   /* For each cluster, recalculate the centroid based on the data oints newly assigned. */
   changed = RecalculateCentroids(KM);
+  //changed++;
 
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
 
@@ -35,6 +36,7 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
       printf("\n\n");
     }
   }
+  //if (DISPLAY_KM_INIT) { displayKM(KM); }
   SaveClusters(KM);
 
   return;
@@ -136,7 +138,6 @@ void SaveClusters(struct kmeans * KM)
 
 void SortDataArray(struct kmeans * KM)
 {
-
-
+  quickSort(KM, 0, (KM->ndata)-1);
   return;
 }

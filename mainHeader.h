@@ -119,4 +119,13 @@ int RecalculateCentroids(struct kmeans * KM);
 
 void SaveClusters(struct kmeans * KM);
 
+
+/* QuickSortCode.c */
+
+void quickSort( struct kmeans * KM, int l, int r);
+
+int partition( struct kmeans * KM, int l, int r);
+
+void SwapPoints(KM,int left,int right);
+
 #endif

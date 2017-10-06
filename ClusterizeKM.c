@@ -124,9 +124,18 @@ int RecalculateCentroids(struct kmeans * KM)
 
 void SaveClusters(struct kmeans * KM)
 {
-  
+  /* Sort the data array (locally) by cluster assignment */
+
+  SortDataArray(KM);
+
+  /* Calculate the radius and start of each cluster. */
 
 
+  return;
+}
+
+void SortDataArray(struct kmeans * KM)
+{
 
 
   return;

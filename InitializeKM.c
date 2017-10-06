@@ -14,6 +14,7 @@ void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, i
   (*KM)->cluster_radius = allocateAndInitializeZeroDouble(k);
   (*KM)->cluster_assign = allocateAndInitializeZeroInt(ndata);
   (*KM)->cluster_centroid = allocateAndInitializeZeroDoubleMulti(k,dim);
+  (*KM)->cluster_group = allocateAndInitializeZeroInt(ndata);
   return;
 }
 

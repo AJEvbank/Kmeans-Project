@@ -21,7 +21,8 @@
 #define QSEED 30
 #define SEED_SET 1
 #define FIRST_CENTROID_SEED 13
-#define THRESHOLD 2
+#define THRESHOLD 25
+
 
 
 
@@ -30,6 +31,7 @@
 #define DISPLAY_KM_INIT 1
 #define DEBUG_SELECTK 0
 #define DEBUG_ASSIGN 1
+#define DEBUG_THRESHOLD 1
 
 #define WRITE_RESULTS 1
 
@@ -54,6 +56,7 @@ struct kmeans {
 	double * cluster_radius;
 	double ** cluster_centroid;
 	int * cluster_assign;
+	int * cluster_group;
 };
 
 /* Prototypes */
@@ -110,7 +113,7 @@ void ClusterizeKM(struct kmeans * KM, int threshold);
 
 void AssignDPs(struct kmeans * KM);
 
-
+void RecalculateCentroids(struct kmeans * KM);
 
 
 #endif

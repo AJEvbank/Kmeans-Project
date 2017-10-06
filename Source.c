@@ -176,7 +176,9 @@ if (WRITE_RESULTS)
 
 
 
-
+	free(result);
+	free(LocalBresult);
+	free(allDistPoints);
 	free(dataArray);
 	free(query);
 	MPI_Finalize();

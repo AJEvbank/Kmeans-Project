@@ -23,6 +23,9 @@ void displayKM(struct kmeans * KM)
 	printf("cluster_assign: \n");
 	printArraysInt(KM->cluster_assign, KM->ndata, "cluster of DP");
 
+	printf("cluster_group: \n");
+	printArraysInt(KM->cluster_group, KM->ndata, "data point-> ");
+
 	return;
 }
 

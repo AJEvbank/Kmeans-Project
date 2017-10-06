@@ -57,6 +57,7 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
   {
     (KM->cluster_centroid)[numCentroids][i] = (KM->data)[(nextCentroid * KM->dim) + i];
   }
+  free(minDistArray);
   return numCentroids + 1;
 }
 

@@ -33,6 +33,8 @@
 #define DEBUG_ASSIGN 0
 #define DEBUG_THRESHOLD 0
 #define DEBUG_QS 0
+#define DEBUG_RADIUS 0
+#define SHOW_DP_NUMBER 1
 
 #define WRITE_RESULTS 1
 
@@ -87,6 +89,8 @@ double ** allocateAndInitializeZeroDoubleMulti(int k, int dimension);
 
 double * allocateAndInitializeZeroDouble(int size_of_target);
 
+void kmeans(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dataArray, int k);
+
 /* debugging displays */
 
 void displayKM(struct kmeans * KM);
@@ -131,5 +135,7 @@ int partition( struct kmeans * KM, int l, int r);
 void SwapPoints(struct kmeans * KM,int left,int right);
 
 void SortDataArray(struct kmeans * KM);
+
+void CalculateRadii(struct kmeans * KM);
 
 #endif

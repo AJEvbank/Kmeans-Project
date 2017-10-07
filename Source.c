@@ -111,12 +111,13 @@ int main(int argc, char** argv) {
 
 struct kmeans * KM = NULL;
 
-initializeKM(&KM,dim,ndata,subdomain,dataArray,k);
-GetKCentroids(KM);
-ClusterizeKM(KM, THRESHOLD);
+kmeans(&KM,dim,ndata,subdomain,dataArray,k);
+
 if (DISPLAY_KM_INIT) { displayKM(KM); }
 
-
+	//At this point, every process has a local kmeans struct.
+	//The search can now be run.
+/*******************************************************************************************************************/
 
 
 

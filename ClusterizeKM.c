@@ -1,5 +1,6 @@
 #include "mainHeader.h"
 
+
 void ClusterizeKM(struct kmeans * KM, int threshold)
 {
   if (DEBUG_THRESHOLD)
@@ -36,7 +37,6 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
       printf("\n\n");
     }
   }
-  //if (DISPLAY_KM_INIT) { displayKM(KM); }
   SaveClusters(KM);
 
   return;
@@ -53,7 +53,7 @@ void AssignDPs(struct kmeans * KM)
     for (j = 0; j < (KM->k); j++)
     {
       distance = GetDistance2PointsDC(KM, first_index, j);
-      //if (DEBUG_ASSIGNA) printf("distance between %d and Centroid %d = %lf \n",i,j,distance);
+      //if (DEBUG_ASSIGN) printf("distance between %d and Centroid %d = %lf \n",i,j,distance);
       if (distance < minDist)
       {
         minDist = distance;
@@ -130,8 +130,18 @@ void SaveClusters(struct kmeans * KM)
 
   SortDataArray(KM);
 
-  /* Calculate the radius and start of each cluster. */
+  /* Set the cluster start values. */
 
+  int i,count = 0;
+  for ( i = 0; i < (KM->k); i++)
+  {
+    (KM->cluster_start)[i] = count;
+    count += (KM->cluster_size)[i];
+  }
+
+  /* Calculate the radius of each cluster. */
+
+  CalculateRadii(KM);
 
   return;
 }
@@ -139,5 +149,31 @@ void SaveClusters(struct kmeans * KM)
 void SortDataArray(struct kmeans * KM)
 {
   quickSort(KM, 0, (KM->ndata)-1);
+  return;
+}
+
+void CalculateRadii(struct kmeans * KM)
+{
+  double * MaxRadii = allocateAndInitializeZeroDouble(KM->k);
+  int i,j,start;
+  double distance = 0;
+  for (i = 0; i < (KM->k); i++)
+  {
+    for (j = 0; j < (KM->cluster_size)[i]; j++)
+    {
+      start = (KM->cluster_start)[i];
+      distance = GetDistance2PointsDC(KM,(start + j)*KM->dim,i);
+      if (DEBUG_RADIUS) { printf("distance between centroid %d and dp %d = %lf \n",i,start+j,distance); }
+      if (distance > MaxRadii[i])
+      {
+        MaxRadii[i] = distance;
+      }
+    }
+  }
+  for (i = 0; i < (KM->k); i++)
+  {
+    (KM->cluster_radius)[i] = MaxRadii[i];
+  }
+  free(MaxRadii);
   return;
 }

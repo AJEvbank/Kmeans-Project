@@ -53,3 +53,11 @@ double * allocateAndInitializeZeroDouble(int size_of_target)
 	}
 	return target;
 }
+
+void kmeans(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dataArray, int k)
+{
+  initializeKM(KM,dim,ndata,subdomain,dataArray,k);
+  GetKCentroids(*KM);
+  ClusterizeKM(*KM, THRESHOLD);
+  return;
+}

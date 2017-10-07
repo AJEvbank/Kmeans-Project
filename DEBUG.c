@@ -85,6 +85,7 @@ void printDataArray(double * dataArray, int dim, int ndata)
 	for (i = 0; i < ndata; i++)
 	{
 		int first_dim_of_data_point = dim * i;
+		if (SHOW_DP_NUMBER) printf("DP %d => ",i);
 		for (j = 0; j < dim; j++)
 		{
 			printf("%lf, ", dataArray[first_dim_of_data_point + j]);

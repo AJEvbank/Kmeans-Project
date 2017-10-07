@@ -138,4 +138,8 @@ void SortDataArray(struct kmeans * KM);
 
 void CalculateRadii(struct kmeans * KM);
 
+/* Search.c */
+
+int search(struct kmeans * KM, double * query, double * result);
+
 #endif

@@ -26,22 +26,23 @@
 
 
 
+#define WAYPOINTS 1
 #define DEBUG 0
 #define DEBUG_RANDOM 0
-#define DISPLAY_KM_INIT 1
+#define DISPLAY_KM_INIT 0
 #define DEBUG_SELECTK 0
 #define DEBUG_ASSIGN 0
 #define DEBUG_THRESHOLD 0
 #define DEBUG_QS 0
 #define DEBUG_RADIUS 0
-#define SHOW_DP_NUMBER 1
+#define SHOW_DP_NUMBER 0
 #define DEBUG_EMPTY_CLUSTERS 0
 #define FORCE_EMPTY 0
 #define DEBUG_CLUSTER_DIST 1
 #define QUERY_ANALYSIS 1
 #define QUERY_ANALYSIS2 0
 
-#define WRITE_RESULTS 1
+#define WRITE_RESULTS 0
 
 /* Data Structures */
 
@@ -96,6 +97,8 @@ int generateRandomArray(double * dataArray, int subdomain, double max_double, in
 double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult);
 
 int findMinimum(double * Array, int size, double * minimum, int stride);
+
+int checkResult(double * searchResult, double * bruteResult, int dim);
 
 /* initialize the kmeans structure */
 

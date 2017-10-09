@@ -15,9 +15,10 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
 
   /* Assign each data point to the cluster with the nearest centroid */
   AssignDPs(KM);
-
+  if (WAYPOINTS) { printf("Assigned at iteration %d.\n",i); }
   /* For each cluster, recalculate the centroid based on the data oints newly assigned. */
   changed = RecalculateCentroids(KM);
+  if (WAYPOINTS) { printf("Centroids recalculated at iteration %d.\n",i); }
   //changed++;
 
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
@@ -38,6 +39,7 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
     }
   }
   SaveClusters(KM);
+  if (WAYPOINTS) { printf("Clusters saved.\n"); }
 
   return;
 }

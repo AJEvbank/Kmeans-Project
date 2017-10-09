@@ -52,7 +52,7 @@ int main(int argc, char** argv) {
 	printf("\nChecking...\n");
 
 	getCmdArgs(argc, argv, &dim, &ndata, &k,&max_double);
-	printf("From world_rank %d, dim = %d, ndata = %d, k = %d max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
+	printf("From world_rank %d, dim = %d, ndata = %d, k = %d, max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
 
 	int subdomain = ndata / (world_size);
 	if (world_rank == world_size - 1)
@@ -110,10 +110,12 @@ int main(int argc, char** argv) {
 	//Now begin building the kmeans structure.
 /******************************************************************************************************************/
 
+if (WAYPOINTS) { printf("Starting kmeans construction...\n"); }
 struct kmeans * KM = NULL;
 
 kmeans(&KM,dim,ndata,subdomain,dataArray,k);
 
+if (WAYPOINTS) { printf("Kmeans construction completed\n"); }
 if (DISPLAY_KM_INIT) { displayKM(KM); }
 
 	//At this point, every process has a local kmeans struct.
@@ -121,8 +123,9 @@ if (DISPLAY_KM_INIT) { displayKM(KM); }
 /*******************************************************************************************************************/
 
 struct stackBase * result = initStack(dim);
-search(KM,query,result);
-
+if (WAYPOINTS) { printf("Search initiated.\n"); }
+int pointsSearched = search(KM,query,result);
+printf("%d points searched.\n",pointsSearched);
 
 
 
@@ -161,7 +164,14 @@ search(KM,query,result);
 		printArrayDoubles(allDistPoints,world_size,dim+1);
 		printf("absMinDist = %lf in rank %d \n",absMinDist,world_rank);
 		printArrayDoubles(&allDistPoints[minLoc+1], dim, 1);
-
+		if (checkResult((result->firstNode)->pointArray,&allDistPoints[minLoc + 1],dim))
+		{
+			printf("THE RESULT IS CORRECT. \n");
+		}
+		else
+		{
+			printf("THE RESULT IS NOT CORRECT. \n");
+		}
 	}
 
 

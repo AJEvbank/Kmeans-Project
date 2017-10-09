@@ -17,6 +17,7 @@ void GetKCentroids(struct kmeans * KM)
   while (numClusters < KM->k)
   {
     numClusters = GetNextCluster(KM,numClusters);
+    if (WAYPOINTS) { printf("%d centroids obtained.\n",numClusters);}
   }
   if (DEBUG_SELECTK) { printf("finished\n");
                         printf("centroids:\n");

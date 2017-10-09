@@ -26,7 +26,7 @@
 
 
 
-#define WAYPOINTS 1
+#define WAYPOINTS 0
 #define DEBUG 0
 #define DEBUG_RANDOM 0
 #define DISPLAY_KM_INIT 0

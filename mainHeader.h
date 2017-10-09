@@ -58,7 +58,6 @@ enum isNumStates {
 struct kmeans {
 	int dim;
 	int ndata;
-	int subdomain;
 	double * data;
 	int k;
 	int * cluster_size;
@@ -102,7 +101,7 @@ int checkResult(double * searchResult, double * bruteResult, int dim);
 
 /* initialize the kmeans structure */
 
-void initializeKM(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dataArray, int k);
+void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k);
 
 int * allocateAndInitializeZeroInt(int size_of_target);
 
@@ -110,7 +109,7 @@ double ** allocateAndInitializeZeroDoubleMulti(int k, int dimension);
 
 double * allocateAndInitializeZeroDouble(int size_of_target);
 
-void kmeans(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dataArray, int k);
+void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k);
 
 /* debugging displays - DEBUG.c */
 

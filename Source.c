@@ -113,7 +113,7 @@ int main(int argc, char** argv) {
 if (WAYPOINTS) { printf("Starting kmeans construction...\n"); }
 struct kmeans * KM = NULL;
 
-kmeans(&KM,dim,ndata,subdomain,dataArray,k);
+kmeans(&KM,dim,ndata,dataArray,k);
 
 if (WAYPOINTS) { printf("Kmeans construction completed\n"); }
 if (DISPLAY_KM_INIT) { displayKM(KM); }

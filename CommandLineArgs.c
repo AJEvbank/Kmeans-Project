@@ -191,6 +191,12 @@ int isNumber(const char * str)
 int generateRandomArray(double * dataArray, int domain, double max_double, int seeds, unsigned int * seedArray)
 {
 	int i,j,first_index;
+	double force_empty_array[] = {
+		1.00,1.00, 2.00,1.00, 2.00,2.00, 1.00,2.00,
+		9.00,9.00, 10.00,9.00, 10.00,10.00, 9.00,10.00,
+		1.00,9.00, 2.00,9.00, 2.00,10.00, 1.00,10.00,
+		9.00,1.00, 10.00,1.00, 10.00,2.00, 9.00,2.00
+	};
 	for (i = 0; i < seeds; i++)
 	{
 		srand(seedArray[i]);
@@ -199,6 +205,7 @@ int generateRandomArray(double * dataArray, int domain, double max_double, int s
 		for (j = 0; j < domain / seeds; j++)
 		{
 			dataArray[first_index + j] = ((double)rand() / (double)RAND_MAX) * max_double;
+			if (FORCE_EMPTY) { dataArray[first_index + j] = force_empty_array[first_index + j]; }
 		}
 	}
 	return 0;

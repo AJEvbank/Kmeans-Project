@@ -165,3 +165,21 @@ void printArrayDouble(double * ArrayDouble, int size, const char * text)
 	}
 	return;
 }
+
+void printStack(struct stackBase *stack)
+{
+	struct stackNode * iterator = stack->firstNode;
+	int i;
+	printf("Stack: \n");
+	printf("stackDepth = %d, firstNode = %p \n", stack->stackDepth,(void *)stack->firstNode);
+	while (iterator != NULL)
+	{
+		for (i = 0; i < stack->arraySize; i++)
+		{
+			printf("dim: %d = %lf, \n", i, (iterator->pointArray)[i]);
+		}
+		printf("distance = %lf, cluster = %d ", iterator->distance, iterator->cluster);
+		printf("\n\n");
+		iterator = iterator->nextNode;
+	}
+}

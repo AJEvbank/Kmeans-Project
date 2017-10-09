@@ -143,6 +143,10 @@ void SaveClusters(struct kmeans * KM)
 
   CalculateRadii(KM);
 
+  /* Deal with empty clusters. */
+
+  EmptyClusters(KM);
+
   return;
 }
 
@@ -175,5 +179,57 @@ void CalculateRadii(struct kmeans * KM)
     (KM->cluster_radius)[i] = MaxRadii[i];
   }
   free(MaxRadii);
+  return;
+}
+
+void EmptyClusters(struct kmeans * KM)
+{
+  double * ClusterSizeCheck = (double *)malloc(sizeof(double) * KM->k);
+  int i,limit = KM->k;
+  for (i = 0; i < KM->k; i++)
+  {
+    ClusterSizeCheck[i] = (KM->cluster_size)[i];
+    if (DEBUG_EMPTY_CLUSTERS) { printf("ClusterSizeCheck[%d] = %lf \n",i,ClusterSizeCheck[i]); }
+  }
+
+  for (i = 0; i < limit; i++)
+  {
+    if((KM->cluster_size)[i] == 0)
+    {
+      DeleteEmptyCluster(KM,i);
+      i--;
+    }
+    limit = KM->k;
+  }
+  free(ClusterSizeCheck);
+  return;
+}
+
+void DeleteEmptyCluster(struct kmeans * KM, int cluster)
+{
+  int i,limit = KM->k;
+
+  /* Free the centroid. */
+  free((KM->cluster_centroid)[cluster]);
+  (KM->cluster_centroid)[cluster] = NULL;
+
+  /* Shift back size, radius, start, and centroid. */
+  for (i = cluster; i < limit-1; i++)
+  {
+    (KM->cluster_size)[i] = (KM->cluster_size)[i+1];
+    (KM->cluster_radius)[i] = (KM->cluster_radius)[i+1];
+    (KM->cluster_start)[i] = (KM->cluster_start)[i+1];
+    (KM->cluster_centroid)[i] = (KM->cluster_centroid)[i+1];
+  }
+
+  /* Adjust the cluster assignment indices. */
+  for (i = limit; i < limit; i++)
+  {
+    (KM->cluster_assign)[i] = (KM->cluster_assign)[i] - 1;
+  }
+
+  /* Decrement k. */
+  KM->k = KM->k - 1;
+
   return;
 }

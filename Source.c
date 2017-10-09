@@ -65,6 +65,7 @@ int main(int argc, char** argv) {
 
 	double * dataArray = (double *)malloc(sizeof(double)*subdomain*dim);
 	double * query = (double *)malloc(sizeof(double)*dim);
+	//double query[] = { 30.00, 40.00 };
 
 	if (world_rank == 0)
 	{
@@ -119,7 +120,8 @@ if (DISPLAY_KM_INIT) { displayKM(KM); }
 	//The search can now be run.
 /*******************************************************************************************************************/
 
-
+struct stackBase * result = initStack(dim);
+search(KM,query,result);
 
 
 
@@ -140,15 +142,15 @@ if (DISPLAY_KM_INIT) { displayKM(KM); }
 
 	//Use brute force search to find the nearest point.
 
-	double * result = (double *)malloc(sizeof(double)*dim);
+	double * resultA = (double *)malloc(sizeof(double)*dim);
 	int i,minLoc;
-	for (i = 0; i < dim; i++) { result[i] = query[i]; }
+	for (i = 0; i < dim; i++) { resultA[i] = query[i]; }
 	double * LocalBresult = (double *)malloc(sizeof(double)*(dim+1));
 	double * allDistPoints = (double *)malloc(sizeof(double)*(dim+1)*world_size);
 	double absMinDist;
 
 
-	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, result, LocalBresult);
+	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, resultA, LocalBresult);
 
 	MPI_Gather(LocalBresult, dim + 1, MPI_DOUBLE, allDistPoints, dim + 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
@@ -176,7 +178,7 @@ if (WRITE_RESULTS)
 }
 
 
-
+	clearStack(result);
 	free(result);
 	free(LocalBresult);
 	free(allDistPoints);

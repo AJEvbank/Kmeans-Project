@@ -14,12 +14,12 @@
 /* MACROS */
 
 #define DIM 2
-#define NDATA 200
-#define K 10
+#define NDATA 400
+#define K 20
 #define MAX_DOUBLE 50.00
 #define MCW MPI_COMM_WORLD
 #define QSEED 30
-#define SEED_SET 1
+#define SEED_SET 2
 #define FIRST_CENTROID_SEED 13
 #define THRESHOLD 1000
 
@@ -35,6 +35,11 @@
 #define DEBUG_QS 0
 #define DEBUG_RADIUS 0
 #define SHOW_DP_NUMBER 1
+#define DEBUG_EMPTY_CLUSTERS 0
+#define FORCE_EMPTY 0
+#define DEBUG_CLUSTER_DIST 1
+#define QUERY_ANALYSIS 1
+#define QUERY_ANALYSIS2 0
 
 #define WRITE_RESULTS 1
 
@@ -61,6 +66,19 @@ struct kmeans {
 	double ** cluster_centroid;
 	int * cluster_assign;
 	//int * cluster_group;
+};
+
+struct stackBase {
+	int stackDepth;
+	int arraySize;
+	struct stackNode * firstNode;
+};
+
+struct stackNode {
+	double * pointArray;
+	double distance;
+	int cluster;
+	struct stackNode * nextNode;
 };
 
 /* Prototypes */
@@ -91,7 +109,7 @@ double * allocateAndInitializeZeroDouble(int size_of_target);
 
 void kmeans(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dataArray, int k);
 
-/* debugging displays */
+/* debugging displays - DEBUG.c */
 
 void displayKM(struct kmeans * KM);
 
@@ -106,6 +124,8 @@ void printDataArray(double * dataArray, int dim, int ndata);
 void writeResults(int dim, int ndata, double* data, int* cluster_assign);
 
 void printArrayDouble(double * ArrayDouble, int size, const char * text);
+
+void printStack(struct stackBase *stack);
 
 /* GetKCentroids.c */
 
@@ -138,8 +158,32 @@ void SortDataArray(struct kmeans * KM);
 
 void CalculateRadii(struct kmeans * KM);
 
+void EmptyClusters(struct kmeans * KM);
+
+void DeleteEmptyCluster(struct kmeans * KM, int i);
+
 /* Search.c */
 
-int search(struct kmeans * KM, double * query, double * result);
+int search(struct kmeans * KM, double * query, struct stackBase * result);
+
+int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDistances);
+
+double GetDistance2PointsQC(struct kmeans * KM, double * query, int cluster);
+
+int GetNearestPoint(struct kmeans * KM, struct stackBase * result, double * query, int nearestCluster);
+
+int GetNearestCluster(double * ClusterDistances, int size, double minDist, int nearestCluster);
+
+/* Stack.c */
+
+struct stackBase * initStack(int);
+
+void pushNode(double *, double, int,  struct stackBase *);
+
+void pop(struct stackBase *);
+
+int peekDepth(struct stackBase * );
+
+void clearStack(struct stackBase *);
 
 #endif

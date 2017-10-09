@@ -18,6 +18,9 @@ void GetKCentroids(struct kmeans * KM)
   {
     numClusters = GetNextCluster(KM,numClusters);
   }
+  if (DEBUG_SELECTK) { printf("finished\n");
+                        printf("centroids:\n");
+                        printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid -> "); }
   return;
 }
 

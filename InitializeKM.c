@@ -1,13 +1,15 @@
 #include "mainHeader.h"
 
 
-void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k)
+void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, int world_rank, int world_size)
 {
   *KM = (struct kmeans *)malloc(sizeof(struct kmeans));
   (*KM)->dim = dim;
   (*KM)->ndata = ndata;
   (*KM)->data = dataArray;
   (*KM)->k = k;
+  (*KM)->world_rank = world_rank;
+  (*KM)->world_size = world_size;
   (*KM)->cluster_size = allocateAndInitializeZeroInt(k);
   (*KM)->cluster_start = allocateAndInitializeZeroInt(k);
   (*KM)->cluster_radius = allocateAndInitializeZeroDouble(k);
@@ -52,9 +54,9 @@ double * allocateAndInitializeZeroDouble(int size_of_target)
 	return target;
 }
 
-void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k)
+void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, int world_rank, int world_size)
 {
-  initializeKM(KM,dim,ndata,dataArray,k);
+  initializeKM(KM,dim,ndata,dataArray,k,world_rank,world_size);
   if (WAYPOINTS) { printf("Kmeans initialized.\n"); }
   GetKCentroids(*KM);
   if (WAYPOINTS) { printf("Got k centroids.\n"); }

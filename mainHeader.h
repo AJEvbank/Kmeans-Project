@@ -14,8 +14,8 @@
 /* MACROS */
 
 #define DIM 2
-#define NDATA 400
-#define K 20
+#define NDATA 40
+#define K 4
 #define MAX_DOUBLE 50.00
 #define MCW MPI_COMM_WORLD
 #define QSEED 30
@@ -28,7 +28,7 @@
 
 #define WAYPOINTS 0
 #define DEBUG 0
-#define DEBUG_RANDOM 0
+#define DEBUG_RANDOM 1
 #define DISPLAY_KM_INIT 0
 #define DEBUG_SELECTK 0
 #define DEBUG_ASSIGN 0
@@ -38,9 +38,14 @@
 #define SHOW_DP_NUMBER 0
 #define DEBUG_EMPTY_CLUSTERS 0
 #define FORCE_EMPTY 0
-#define DEBUG_CLUSTER_DIST 1
-#define QUERY_ANALYSIS 1
+#define DEBUG_CLUSTER_DIST 0
+#define QUERY_ANALYSIS 0
 #define QUERY_ANALYSIS2 0
+
+/* Parallelization debugs */
+#define FIRST_CENTROID 0
+#define NEXT_CENTROID 0
+#define NEXT_CENTROID1 0
 
 #define WRITE_RESULTS 0
 
@@ -60,6 +65,8 @@ struct kmeans {
 	int ndata;
 	double * data;
 	int k;
+	int world_rank;
+	int world_size;
 	int * cluster_size;
 	int * cluster_start;
 	double * cluster_radius;
@@ -101,7 +108,7 @@ int checkResult(double * searchResult, double * bruteResult, int dim);
 
 /* initialize the kmeans structure */
 
-void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k);
+void initializeKM(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, int world_rank, int world_size);
 
 int * allocateAndInitializeZeroInt(int size_of_target);
 
@@ -109,7 +116,7 @@ double ** allocateAndInitializeZeroDoubleMulti(int k, int dimension);
 
 double * allocateAndInitializeZeroDouble(int size_of_target);
 
-void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k);
+void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, int world_rank, int world_size);
 
 /* debugging displays - DEBUG.c */
 

@@ -37,7 +37,6 @@ void GetKCentroids(struct kmeans * KM)
   if (NEXT_CENTROID1) { printf("finished\n");
                         printf("centroids in world_rank %d:\n",KM->world_rank);
                         printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid -> "); }
-  exit(0);
   return;
 }
 
@@ -102,6 +101,7 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
   {
     (KM->cluster_centroid)[numCentroids][i] = AllNextCentroids[minLoc + i];
   }
+
   free(minDistArray);
   free(nextCent);
   free(AllNextCentroids);

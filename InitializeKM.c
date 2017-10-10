@@ -49,7 +49,7 @@ double * allocateAndInitializeZeroDouble(int size_of_target)
 	double * target = (double *)malloc(size_of_target * sizeof(double));
 	int i = 0;
 	for (i = 0; i < size_of_target; i++) {
-		target[i] = 0;
+		target[i] = 0.0;
 	}
 	return target;
 }

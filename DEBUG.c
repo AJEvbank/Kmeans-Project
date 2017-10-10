@@ -2,7 +2,7 @@
 
 void displayKM(struct kmeans * KM)
 {
-	printf("Kmeans: \n");
+	printf("Kmeans on world_rank %d: \n",KM->world_rank);
 	printf("dim = %d, ndata = %d, k = %d \n", KM->dim, KM->ndata, KM->k);
 
 	printf("Working data array: \n");
@@ -156,7 +156,7 @@ void printArrayDouble(double * ArrayDouble, int size, const char * text)
 		}
 		if (i != size - 1)
 		{
-			printf("),\n");
+			printf(" ),\n");
 		}
 		else
 		{

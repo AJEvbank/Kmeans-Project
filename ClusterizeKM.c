@@ -20,7 +20,8 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
   changed = RecalculateCentroids(KM);
   if (WAYPOINTS) { printf("Centroids recalculated at iteration %d.\n",i); }
   //changed++;
-
+  if (DISPLAY_KM_INIT) { displayKM(KM); }
+  exit(0);
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
 
     if (DEBUG_THRESHOLD)
@@ -70,22 +71,53 @@ void AssignDPs(struct kmeans * KM)
 
 int RecalculateCentroids(struct kmeans * KM)
 {
-  int * newClusterSizes = allocateAndInitializeZeroInt(KM->k);
-  double * centroids = allocateAndInitializeZeroDouble(KM->k * KM->dim);
+  int * newClusterSizesLoc = allocateAndInitializeZeroInt(KM->k);
+  int * newClusterSizesGlob = allocateAndInitializeZeroInt(KM->k);
+  double * centroidsLoc = allocateAndInitializeZeroDouble(KM->k * KM->dim);
+  double * centroidsGlob = allocateAndInitializeZeroDouble(KM->k * KM->dim);
   int i,j,group,group_coordinate,first_index,changed = 0;
 
   /* Get the sum of each dimension in each cluster */
   for ( i = 0; i < KM->ndata; i++)
   {
     group = (KM->cluster_assign)[i];
-    newClusterSizes[group] += 1;
+    newClusterSizesLoc[group] += 1;
     group_coordinate = group * KM->dim;
     first_index = i * KM->dim;
     for (j = 0; j < KM->dim; j++)
     {
-      centroids[group_coordinate + j] += (KM->data)[first_index + j];
+      centroidsLoc[group_coordinate + j] += (KM->data)[first_index + j];
     }
   }
+  if (RECAL_A) {  printArrayDouble(centroidsLoc,KM->k * KM->dim,"centroid ->"); }
+  if (RECAL_A) {  printArraysInt(newClusterSizesLoc,KM->k,"cluster size ->"); }
+
+  /* Save the newly calculated cluster sizes in the kmeans structure. */
+  for ( i = 0; i < KM->k; i++)
+  {
+    (KM->cluster_size)[i] = newClusterSizesLoc[i];
+  }
+
+  /* Get the global sums of each dimension and the global cluster sizes. */
+  MPI_Allreduce(
+                centroidsLoc,
+                centroidsGlob,
+                (KM->k * KM->dim),
+                MPI_DOUBLE,
+                MPI_SUM,
+                MCW
+  );
+  MPI_Barrier(MCW);
+
+  MPI_Allreduce(
+                newClusterSizesLoc,
+                newClusterSizesGlob,
+                (KM->k),
+                MPI_INT,
+                MPI_SUM,
+                MCW
+  );
+  MPI_Barrier(MCW);
 
   /* Divide the sum of each dimension in each cluster by the size of the cluster. */
   for ( i = 0; i < KM->k; i++)
@@ -93,9 +125,11 @@ int RecalculateCentroids(struct kmeans * KM)
     first_index = i * KM->dim;
     for ( j = 0; j < KM->dim; j++)
     {
-      centroids[first_index + j] /= (double)newClusterSizes[i];
+      centroidsGlob[first_index + j] /= (double)newClusterSizesGlob[i];
     }
   }
+  if (RECAL_A) {  printArrayDouble(centroidsGlob,KM->k * KM->dim,"GLOB centroid ->"); }
+  if (RECAL_A) {  printArraysInt(newClusterSizesGlob,KM->k,"GLOB cluster size ->"); }
 
   /* Save the newly calculated centroids in the kmeans structure. */
   for ( i = 0; i < KM->k; i++)
@@ -103,26 +137,20 @@ int RecalculateCentroids(struct kmeans * KM)
     first_index = i * KM->dim;
     for ( j = 0; j < KM->dim; j++)
     {
-      if ((KM->cluster_centroid)[i][j] != centroids[first_index + j])
+      if ((KM->cluster_centroid)[i][j] != centroidsGlob[first_index + j])
       {
-        (KM->cluster_centroid)[i][j] = centroids[first_index + j];
+        (KM->cluster_centroid)[i][j] = centroidsGlob[first_index + j];
         changed = 1;
       }
     }
   }
+  if (RECAL_A) {  printArraysDouble((KM->cluster_centroid), KM->k, KM->dim,"KM.centroid -> "); }
+  if (RECAL_A) {  printArraysInt((KM->cluster_size),KM->k,"KM cluster size ->"); }
 
-  /* Save the newly calculated cluster sizes in the kmeans structure. */
-  for ( i = 0; i < KM->k; i++)
-  {
-    if ((KM->cluster_size)[i] != newClusterSizes[i])
-    {
-      (KM->cluster_size)[i] = newClusterSizes[i];
-      changed = 1;
-    }
-  }
-
-  free(newClusterSizes);
-  free(centroids);
+  free(newClusterSizesLoc);
+  free(newClusterSizesGlob);
+  free(centroidsLoc);
+  free(centroidsGlob);
   return changed;
 }
 

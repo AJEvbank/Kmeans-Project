@@ -19,7 +19,7 @@
 #define MAX_DOUBLE 50.00
 #define MCW MPI_COMM_WORLD
 #define QSEED 30
-#define SEED_SET 2
+#define SEED_SET 3
 #define FIRST_CENTROID_SEED 13
 #define THRESHOLD 1000
 
@@ -28,8 +28,8 @@
 
 #define WAYPOINTS 0
 #define DEBUG 0
-#define DEBUG_RANDOM 1
-#define DISPLAY_KM_INIT 0
+#define DEBUG_RANDOM 0
+#define DISPLAY_KM_INIT 1
 #define DEBUG_SELECTK 0
 #define DEBUG_ASSIGN 0
 #define DEBUG_THRESHOLD 0
@@ -46,6 +46,7 @@
 #define FIRST_CENTROID 0
 #define NEXT_CENTROID 0
 #define NEXT_CENTROID1 0
+#define RECAL_A 0
 
 #define WRITE_RESULTS 0
 

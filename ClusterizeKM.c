@@ -215,6 +215,7 @@ void CalculateRadii(struct kmeans * KM)
                 MPI_MAX,
                 MCW
   );
+  MPI_Barrier(MCW);
 
   if (DEBUG_RADII) { printf("Global radii in world_rank %d \n",KM->world_rank); printArrayDouble(MaxRadiiGlob,KM->k,"radius => "); }
 
@@ -247,6 +248,8 @@ void EmptyClusters(struct kmeans * KM)
                 MPI_SUM,
                 MCW
   );
+  MPI_Barrier(MCW);
+  
   if (DEBUG_EMPTY_PAR) { printf("Global cluster sizes in world_rank %d \n",KM->world_rank); printArraysInt(ClusterSizeCheckGlob,KM->k,"global cluster size => "); }
 
   for (i = limit-1; i >= 0; i--)

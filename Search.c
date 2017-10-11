@@ -5,17 +5,30 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
   int loop_control = 1,pointCount = 0;
   /* Calculate distances to clusters. */
   double * ClusterDistancesLoc = allocateAndInitializeZeroDouble(KM->k);
+  double * ClusterDistancesGlob = allocateAndInitializeZeroDouble(KM->k);
   int nearestCluster = GetClusterDistances(KM,query,ClusterDistancesLoc),candidateCluster;
-  if (DEBUG_CLUSTER_DIST) { printArrayDouble(ClusterDistances,KM->k,"distance to cluster"); }
+
+  MPI_Allreduce(
+                ClusterDistancesLoc,
+                ClusterDistancesGlob,
+                (KM->k),
+                MPI_DOUBLE,
+                MPI_MAX,
+                MCW
+  );
+  MPI_Barrier(MCW);
+  if (DEBUG_CLUSTER_DIST) { printArrayDouble(ClusterDistancesLoc,KM->k,"distance to cluster"); }
+  if (DEBUG_SEARCH_PAR1) { printf("Local cluster distances on world_rank %d \n",KM->world_rank); printArrayDouble(ClusterDistancesLoc,KM->k,"local distance");
+                          printf("Global cluster distances on world_rank %d \n",KM->world_rank); printArrayDouble(ClusterDistancesGlob,KM->k,"global distance"); }
 
   /* Iterate: do-while */
   /* Find nearest point in nearest cluster. Distance = straight line - radius */
   do {
       pointCount += GetNearestPoint(KM,result,query,nearestCluster);
       if (QUERY_ANALYSIS) { printStack(result); }
-      ClusterDistances[nearestCluster] = INFINITY;
-      candidateCluster = GetNearestCluster(ClusterDistances,KM->k,(result->firstNode)->distance,nearestCluster);
-      if (DEBUG_CLUSTER_DIST) { printArrayDouble(ClusterDistances,KM->k,"distance to cluster"); }
+      ClusterDistancesGlob[nearestCluster] = INFINITY;
+      candidateCluster = GetNearestCluster(ClusterDistancesGlob,KM->k,(result->firstNode)->distance,nearestCluster);
+      if (DEBUG_CLUSTER_DIST) { printArrayDouble(ClusterDistancesGlob,KM->k,"distance to cluster"); }
       if (DEBUG_CLUSTER_DIST) { printf("candidateCluster %d \n",candidateCluster); }
       /* If there is a cluster K nearer than the current nearest point,
          then reiterate searching K to update the nearest point. */
@@ -30,12 +43,13 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
       }
   }while(loop_control);
   free(ClusterDistancesLoc);
+  free(ClusterDistancesGlob);
   return pointCount;
 }
 
 int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDistancesLoc)
 {
-  int i,nearestCluster,subd = (KM->k)/world_size,start = world_rank * subd;
+  int i,nearestCluster,subd = (KM->k)/(KM->world_size),start = (KM->world_rank) * subd;
   double distance, minDist = INFINITY;
   for (i = start; i < (subd + start); i++)
   {
@@ -70,6 +84,8 @@ double GetDistance2PointsQC(struct kmeans * KM, double * query, int cluster)
 int GetNearestPoint(struct kmeans * KM, struct stackBase * result, double * query, int nearestCluster)
 {
   double * thisPoint = (double *)malloc(sizeof(double)*KM->dim);
+  double * topPointLoc = allocateAndInitializeZeroDouble(KM->dim + 2);
+  double * pointsGlob = allocateAndInitializeZeroDouble((KM->dim + 2) * KM->world_size);
 	int i,j,k, dataPoint,start = (KM->cluster_start)[nearestCluster],size = (KM->cluster_size)[nearestCluster];
 	double distanceCalculating;
 	// if (QUERY_ANALYSIS2) { printf("(Tree->cluster_start)[nearestCluster] = %d,\n", start);
@@ -110,20 +126,84 @@ int GetNearestPoint(struct kmeans * KM, struct stackBase * result, double * quer
 			}
 		}
 	}
+
+  topPointLoc[0] = (result->firstNode)->distance;
+  topPointLoc[1] = (double)(result->firstNode)->cluster;
+  for(i = 2,j = 0; i < (KM->dim + 2); i++,j++)
+  {
+    topPointLoc[i] = ((result->firstNode)->pointArray)[j];
+  }
+  MPI_Allgather(
+                topPointLoc,
+                (KM->dim + 2),
+                MPI_DOUBLE,
+                pointsGlob,
+                (KM->dim + 2),
+                MPI_DOUBLE,
+                MCW
+  );
+  MPI_Barrier(MCW);
+
+  if (DEBUG_SEARCH_PAR2) { printf("pointsGlob on world_rank %d \n",KM->world_rank);
+                           printArrayDouble(pointsGlob,((KM->dim + 2) * KM->world_size),"pointsGlob => ");
+                           printArrayDouble(topPointLoc,(KM->dim + 2),"topPointLoc => "); }
+
+  SetStackWithGlobal(KM,result,pointsGlob);
+  if (DEBUG_SEARCH_PAR3) { printf("stack from world_rank %d \n",KM->world_rank); printStack(result); }
+
 	// if (QUERY_ANALYSIS) { printStack(result); }
 	free(thisPoint);
+  free(topPointLoc);
+  free(pointsGlob);
 	return (KM->cluster_size)[nearestCluster];
 }
 
-int GetNearestCluster(double * ClusterDistances, int size, double minDist, int nearestCluster)
+int GetNearestCluster(double * ClusterDistancesGlob, int size, double minDist, int nearestCluster)
 {
   int i;
   for (i = 0; i < size; i++)
   {
-    if (ClusterDistances[i] <= minDist)
+    if (ClusterDistancesGlob[i] <= minDist)
     {
       return i;
     }
   }
   return nearestCluster;
+}
+
+void SetStackWithGlobal(struct kmeans * KM, struct stackBase * result, double * pointsGlob)
+{
+  int i,first_index,bestCluster;
+  double minDist = (result->firstNode)->distance;
+  struct stackNode * iterator = NULL;
+  for (i = 0; i < KM->world_size; i++)
+  {
+    first_index = i * (KM->dim + 2);
+    if (pointsGlob[first_index] < minDist)
+    {
+      minDist = pointsGlob[first_index];
+      bestCluster = pointsGlob[first_index + 1];
+      clearStack(result);
+      pushNode(&pointsGlob[first_index + 2],minDist,bestCluster,result);
+    }
+    else if (pointsGlob[first_index] == minDist)
+    {
+      minDist = pointsGlob[first_index];
+      bestCluster = pointsGlob[first_index + 1];
+      iterator = result->firstNode;
+      while (iterator != NULL)
+      {
+        if(checkResult(iterator->pointArray,&pointsGlob[first_index + 2],KM->dim))
+        {
+          break;
+        }
+        iterator = iterator->nextNode;
+      }
+      if (iterator == NULL)
+      {
+          pushNode(&pointsGlob[first_index + 2],minDist,bestCluster,result);
+      }
+    }
+  }
+  return;
 }

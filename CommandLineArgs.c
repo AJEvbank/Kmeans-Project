@@ -211,10 +211,11 @@ int generateRandomArray(double * dataArray, int domain, double max_double, int s
 	return 0;
 }
 
-double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult)
+double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * Bresult)
 {
 	int first_index, i, j, nearestPoint;
 	double minDist = INFINITY, calcDist = 0;
+	printf("Entered bruteForceSearch: \n");
 	for (i = 0; i < ndata; i++)
 	{
 		calcDist = 0;

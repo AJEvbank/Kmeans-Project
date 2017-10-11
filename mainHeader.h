@@ -14,7 +14,7 @@
 /* MACROS */
 
 #define DIM 2
-#define NDATA 40
+#define NDATA 60
 #define K 4
 #define MAX_DOUBLE 50.00
 #define MCW MPI_COMM_WORLD
@@ -30,7 +30,7 @@
 #define DEBUG 0
 #define DEBUG_RANDOM 0
 #define DISPLAY_KM_INIT 0
-#define DISPLAY_KM_INIT_SOURCE 1
+#define DISPLAY_KM_INIT_SOURCE 0
 #define DEBUG_SELECTK 0
 #define DEBUG_ASSIGN 0
 #define DEBUG_THRESHOLD 0
@@ -42,15 +42,20 @@
 #define DEBUG_CLUSTER_DIST 0
 #define QUERY_ANALYSIS 0
 #define QUERY_ANALYSIS2 0
-#define DEBUG_RADII 0
-#define DEBUG_EMPTY_PAR 0
-#define DEBUG_EMPTY_PAR1 0
 
 /* Parallelization debugs */
 #define FIRST_CENTROID 0
 #define NEXT_CENTROID 0
 #define NEXT_CENTROID1 0
 #define RECAL_A 0
+#define DEBUG_RADII 0
+#define DEBUG_EMPTY_PAR 0
+#define DEBUG_EMPTY_PAR1 0
+#define DEBUG_SEARCH_PAR1 0
+#define DEBUG_SEARCH_PAR2 0
+#define DEBUG_SEARCH_PAR3 0
+#define BRUTE_CHECK 0
+#define WAYPOINTS2 1
 
 #define WRITE_RESULTS 0
 
@@ -105,7 +110,7 @@ void printArrayDoubles(double * nums, int ndata, int dim);
 
 int generateRandomArray(double * dataArray, int subdomain, double max_double, int seeds, unsigned int * seedArray);
 
-double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult);
+double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * Bresult);
 
 int findMinimum(double * Array, int size, double * minimum, int stride);
 
@@ -187,6 +192,8 @@ double GetDistance2PointsQC(struct kmeans * KM, double * query, int cluster);
 int GetNearestPoint(struct kmeans * KM, struct stackBase * result, double * query, int nearestCluster);
 
 int GetNearestCluster(double * ClusterDistances, int size, double minDist, int nearestCluster);
+
+void SetStackWithGlobal(struct kmeans * KM, struct stackBase * result, double * pointsGlob);
 
 /* Stack.c */
 

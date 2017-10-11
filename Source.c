@@ -117,17 +117,33 @@ kmeans(&KM,dim,subdomain,dataArray,k,world_rank,world_size);
 
 if (WAYPOINTS) { printf("Kmeans construction completed\n"); }
 if (DISPLAY_KM_INIT_SOURCE) { printf("Kmeans in world_rank %d \n",world_rank); displayKM(KM); }
-exit(0);
 
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.
 /*******************************************************************************************************************/
 
-//struct stackBase * result = initStack(dim);
+MPI_Barrier(MCW);
+struct stackBase * result = initStack(dim);
 if (WAYPOINTS) { printf("Search initiated.\n"); }
-int pointsSearched = 0;
-//pointsSearched = search(KM,query,result);
-printf("%d points searched.\n",pointsSearched);
+int pointsSearched = 0,globPointsSearched = 0;
+pointsSearched = search(KM,query,result);
+MPI_Barrier(MCW);
+printf("pointsSearched found on world_rank %d\n",world_rank);
+MPI_Reduce(
+						&pointsSearched,
+						&globPointsSearched,
+						1,
+						MPI_INT,
+						MPI_SUM,
+						0,
+						MCW
+);
+MPI_Barrier(MCW);
+if (world_rank == 0)
+{
+	printf("%d points searched.\n",pointsSearched);
+}
+
 
 
 
@@ -148,32 +164,51 @@ printf("%d points searched.\n",pointsSearched);
 	//Use brute force search to find the nearest point.
 
 	double * resultA = (double *)malloc(sizeof(double)*dim);
-	int i,minLoc;
+	int i,minLoc,isOneResult;
 	for (i = 0; i < dim; i++) { resultA[i] = query[i]; }
 	double * LocalBresult = (double *)malloc(sizeof(double)*(dim+1));
 	double * allDistPoints = (double *)malloc(sizeof(double)*(dim+1)*world_size);
 	double absMinDist;
 
 
-	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, resultA, LocalBresult);
-
+	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, LocalBresult);
 	MPI_Gather(LocalBresult, dim + 1, MPI_DOUBLE, allDistPoints, dim + 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	if (BRUTE_CHECK) { printf("allDistPoints on world_rank %d: \n",world_rank); printArrayDouble(allDistPoints,(world_size * (dim + 1)),"minPoint => "); }
 
 	if (world_rank == 0)
 	{
+		printf("Entered world_rank \n");
+		struct stackNode * iterator = result->firstNode;
 		minLoc = findMinimum(allDistPoints, (dim+1)*world_size, &absMinDist, dim+1);
+		printf("found minimum \n");
+		printf("Print result stack: \n");
+		printStack(result);
+		printf("BRUTE FORCE RESULT: \n");
 		printf("minLoc = %d \n",minLoc);
 		printArrayDoubles(allDistPoints,world_size,dim+1);
 		printf("absMinDist = %lf in rank %d \n",absMinDist,world_rank);
 		printArrayDoubles(&allDistPoints[minLoc+1], dim, 1);
-		// if (checkResult((result->firstNode)->pointArray,&allDistPoints[minLoc + 1],dim))
-		// {
-		// 	printf("THE RESULT IS CORRECT. \n");
-		// }
-		// else
-		// {
-		// 	printf("THE RESULT IS NOT CORRECT. \n");
-		// }
+		while (iterator != NULL)
+		{
+			printf("iterator\n");
+			isOneResult = checkResult(iterator->pointArray,&allDistPoints[minLoc + 1],dim);
+			if (isOneResult)
+			{
+				break;
+			}
+			else
+			{
+				iterator = iterator->nextNode;
+			}
+		}
+		if (isOneResult)
+		{
+			printf("THE RESULT IS CORRECT. \n");
+		}
+		else
+		{
+			printf("THE RESULT IS NOT CORRECT. \n");
+		}
 	}
 
 

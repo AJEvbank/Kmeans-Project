@@ -116,7 +116,8 @@ struct kmeans * KM = NULL;
 kmeans(&KM,dim,subdomain,dataArray,k,world_rank,world_size);
 
 if (WAYPOINTS) { printf("Kmeans construction completed\n"); }
-if (DISPLAY_KM_INIT) { displayKM(KM); }
+if (DISPLAY_KM_INIT_SOURCE) { printf("Kmeans in world_rank %d \n",world_rank); displayKM(KM); }
+exit(0);
 
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.

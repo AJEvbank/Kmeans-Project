@@ -4,8 +4,8 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
 {
   int loop_control = 1,pointCount = 0;
   /* Calculate distances to clusters. */
-  double * ClusterDistances = allocateAndInitializeZeroDouble(KM->k);
-  int nearestCluster = GetClusterDistances(KM,query,ClusterDistances),candidateCluster;
+  double * ClusterDistancesLoc = allocateAndInitializeZeroDouble(KM->k);
+  int nearestCluster = GetClusterDistances(KM,query,ClusterDistancesLoc),candidateCluster;
   if (DEBUG_CLUSTER_DIST) { printArrayDouble(ClusterDistances,KM->k,"distance to cluster"); }
 
   /* Iterate: do-while */
@@ -29,14 +29,15 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
         loop_control = 0;
       }
   }while(loop_control);
+  free(ClusterDistancesLoc);
   return pointCount;
 }
 
-int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDistances)
+int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDistancesLoc)
 {
-  int i,nearestCluster;
+  int i,nearestCluster,subd = (KM->k)/world_size,start = world_rank * subd;
   double distance, minDist = INFINITY;
-  for (i = 0; i < KM->k; i++)
+  for (i = start; i < (subd + start); i++)
   {
     distance = GetDistance2PointsQC(KM,query,i);
     distance = distance - (KM->cluster_radius)[i];
@@ -44,7 +45,7 @@ int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDist
     {
       distance = 0;
     }
-    ClusterDistances[i] = distance;
+    ClusterDistancesLoc[i] = distance;
     if (distance < minDist)
     {
       minDist = distance;

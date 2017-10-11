@@ -21,7 +21,6 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
   if (WAYPOINTS) { printf("Centroids recalculated at iteration %d.\n",i); }
   //changed++;
   if (DISPLAY_KM_INIT) { displayKM(KM); }
-  exit(0);
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
 
     if (DEBUG_THRESHOLD)
@@ -176,6 +175,7 @@ void SaveClusters(struct kmeans * KM)
   /* Deal with empty clusters. */
 
   EmptyClusters(KM);
+  if ( DEBUG_EMPTY_PAR1) { displayKM(KM); }
 
   return;
 }
@@ -188,7 +188,8 @@ void SortDataArray(struct kmeans * KM)
 
 void CalculateRadii(struct kmeans * KM)
 {
-  double * MaxRadii = allocateAndInitializeZeroDouble(KM->k);
+  double * MaxRadiiLoc = allocateAndInitializeZeroDouble(KM->k);
+  double * MaxRadiiGlob = allocateAndInitializeZeroDouble(KM->k);
   int i,j,start;
   double distance = 0;
   for (i = 0; i < (KM->k); i++)
@@ -198,40 +199,66 @@ void CalculateRadii(struct kmeans * KM)
       start = (KM->cluster_start)[i];
       distance = GetDistance2PointsDC(KM,(start + j)*KM->dim,i);
       if (DEBUG_RADIUS) { printf("distance between centroid %d and dp %d = %lf \n",i,start+j,distance); }
-      if (distance > MaxRadii[i])
+      if (distance > MaxRadiiLoc[i])
       {
-        MaxRadii[i] = distance;
+        MaxRadiiLoc[i] = distance;
       }
     }
   }
+  if (DEBUG_RADII) { printf("Local radii in world_rank %d \n",KM->world_rank); printArrayDouble(MaxRadiiLoc,KM->k,"radius => "); }
+
+  MPI_Allreduce(
+                MaxRadiiLoc,
+                MaxRadiiGlob,
+                (KM->k),
+                MPI_DOUBLE,
+                MPI_MAX,
+                MCW
+  );
+
+  if (DEBUG_RADII) { printf("Global radii in world_rank %d \n",KM->world_rank); printArrayDouble(MaxRadiiGlob,KM->k,"radius => "); }
+
   for (i = 0; i < (KM->k); i++)
   {
-    (KM->cluster_radius)[i] = MaxRadii[i];
+    (KM->cluster_radius)[i] = MaxRadiiGlob[i];
   }
-  free(MaxRadii);
+  free(MaxRadiiLoc);
+  free(MaxRadiiGlob);
   return;
 }
 
 void EmptyClusters(struct kmeans * KM)
 {
-  double * ClusterSizeCheck = (double *)malloc(sizeof(double) * KM->k);
+  int * ClusterSizeCheckLoc = (int *)malloc(sizeof(int) * KM->k);
+  int * ClusterSizeCheckGlob = (int *)malloc(sizeof(int) * KM->k);
   int i,limit = KM->k;
   for (i = 0; i < KM->k; i++)
   {
-    ClusterSizeCheck[i] = (KM->cluster_size)[i];
-    if (DEBUG_EMPTY_CLUSTERS) { printf("ClusterSizeCheck[%d] = %lf \n",i,ClusterSizeCheck[i]); }
+    ClusterSizeCheckLoc[i] = (KM->cluster_size)[i];
+    if (DEBUG_EMPTY_CLUSTERS) { printf("ClusterSizeCheck[%d] = %d \n",i,ClusterSizeCheckLoc[i]); }
   }
+  if (DEBUG_EMPTY_PAR) { printf("Local cluster sizes in world_rank %d \n",KM->world_rank); printArraysInt(ClusterSizeCheckLoc,KM->k,"local cluster size => "); }
 
-  for (i = 0; i < limit; i++)
+  MPI_Allreduce(
+                ClusterSizeCheckLoc,
+                ClusterSizeCheckGlob,
+                (KM->k),
+                MPI_INT,
+                MPI_SUM,
+                MCW
+  );
+  if (DEBUG_EMPTY_PAR) { printf("Global cluster sizes in world_rank %d \n",KM->world_rank); printArraysInt(ClusterSizeCheckGlob,KM->k,"global cluster size => "); }
+
+  for (i = limit-1; i >= 0; i--)
   {
-    if((KM->cluster_size)[i] == 0)
+    if(ClusterSizeCheckGlob[i] == 0)
     {
       DeleteEmptyCluster(KM,i);
-      i--;
     }
-    limit = KM->k;
   }
-  free(ClusterSizeCheck);
+  free(ClusterSizeCheckLoc);
+  free(ClusterSizeCheckGlob);
+  if (DEBUG_EMPTY_PAR) { printf("Local cluster sizes in kmeans of world_rank %d \n",KM->world_rank); printArraysInt(KM->cluster_size,KM->k,"kmeans cluster size => "); }
   return;
 }
 
@@ -253,9 +280,12 @@ void DeleteEmptyCluster(struct kmeans * KM, int cluster)
   }
 
   /* Adjust the cluster assignment indices. */
-  for (i = limit; i < limit; i++)
+  for (i = (KM->ndata); i >= (KM->cluster_start)[cluster-1]; i--)
   {
-    (KM->cluster_assign)[i] = (KM->cluster_assign)[i] - 1;
+    if ((KM->cluster_assign)[i] > cluster)
+    {
+      (KM->cluster_assign)[i] = (KM->cluster_assign)[i] - 1;
+    }
   }
 
   /* Decrement k. */

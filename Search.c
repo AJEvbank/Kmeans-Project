@@ -7,7 +7,9 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
   double * ClusterDistancesLoc = allocateAndInitializeZeroDouble(KM->k);
   double * ClusterDistancesGlob = allocateAndInitializeZeroDouble(KM->k);
   int nearestCluster = GetClusterDistances(KM,query,ClusterDistancesLoc),candidateCluster;
+  int counter = 0;
 
+  MPI_Barrier(MCW);
   MPI_Allreduce(
                 ClusterDistancesLoc,
                 ClusterDistancesGlob,
@@ -17,6 +19,8 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
                 MCW
   );
   MPI_Barrier(MCW);
+
+  if (WAYPOINTS2) printf("cluster distances on world_rank %d \n",KM->world_rank);
   if (DEBUG_CLUSTER_DIST) { printArrayDouble(ClusterDistancesLoc,KM->k,"distance to cluster"); }
   if (DEBUG_SEARCH_PAR1) { printf("Local cluster distances on world_rank %d \n",KM->world_rank); printArrayDouble(ClusterDistancesLoc,KM->k,"local distance");
                           printf("Global cluster distances on world_rank %d \n",KM->world_rank); printArrayDouble(ClusterDistancesGlob,KM->k,"global distance"); }
@@ -24,10 +28,15 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
   /* Iterate: do-while */
   /* Find nearest point in nearest cluster. Distance = straight line - radius */
   do {
+      MPI_Barrier(MCW);
       pointCount += GetNearestPoint(KM,result,query,nearestCluster);
+      MPI_Barrier(MCW);
       if (QUERY_ANALYSIS) { printStack(result); }
       ClusterDistancesGlob[nearestCluster] = INFINITY;
+      MPI_Barrier(MCW);
       candidateCluster = GetNearestCluster(ClusterDistancesGlob,KM->k,(result->firstNode)->distance,nearestCluster);
+      MPI_Barrier(MCW);
+      if (WAYPOINTS2) { printf("iteration %d of search while loop on world_rank %d \n",counter,KM->world_rank); counter++; }
       if (DEBUG_CLUSTER_DIST) { printArrayDouble(ClusterDistancesGlob,KM->k,"distance to cluster"); }
       if (DEBUG_CLUSTER_DIST) { printf("candidateCluster %d \n",candidateCluster); }
       /* If there is a cluster K nearer than the current nearest point,
@@ -36,12 +45,16 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
       {
         nearestCluster = candidateCluster;
         if (DEBUG_CLUSTER_DIST) { printf("nearestCluster = %d, loop_control = %d \n",nearestCluster,loop_control); }
+        if (WAYPOINTS2) printf("ANOTHER iteration required from %d on world_rank %d \n",counter,KM->world_rank);
       }
       else
       {
         loop_control = 0;
+        if (WAYPOINTS2) printf("NO MORE iterations required from %d on world_rank %d \n",counter,KM->world_rank);
       }
+      MPI_Barrier(MCW);
   }while(loop_control);
+  if (WAYPOINTS2) printf("finished search while loop on world_rank %d \n",KM->world_rank);
   free(ClusterDistancesLoc);
   free(ClusterDistancesGlob);
   return pointCount;
@@ -133,6 +146,7 @@ int GetNearestPoint(struct kmeans * KM, struct stackBase * result, double * quer
   {
     topPointLoc[i] = ((result->firstNode)->pointArray)[j];
   }
+  MPI_Barrier(MCW);
   MPI_Allgather(
                 topPointLoc,
                 (KM->dim + 2),

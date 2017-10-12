@@ -55,7 +55,7 @@
 #define DEBUG_SEARCH_PAR2 0
 #define DEBUG_SEARCH_PAR3 0
 #define BRUTE_CHECK 0
-#define WAYPOINTS2 1
+#define WAYPOINTS2 0
 
 #define WRITE_RESULTS 0
 

@@ -28,8 +28,8 @@
 
 
 #define WAYPOINTS 0
-#define DEBUG_RANDOM 1
-#define WAYPOINTS2 0
+#define DEBUG_RANDOM 0
+#define WAYPOINTS2 1
 #define WAYPOINTS3 0
 #define DEBUG_THRESHOLD 0
 #define SHOW_DP_NUMBER 0

@@ -49,7 +49,6 @@ int main(int argc, char** argv) {
 	}
 
 
-	printf("\nChecking...\n");
 
 	getCmdArgs(argc, argv, &dim, &ndata, &k,&max_double);
 	printf("From world_rank %d, dim = %d, ndata = %d, k = %d, max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
@@ -173,11 +172,9 @@ if (world_rank == 0)
 
 	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, LocalBresult);
 	MPI_Gather(LocalBresult, dim + 1, MPI_DOUBLE, allDistPoints, dim + 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
-	if (BRUTE_CHECK) { printf("allDistPoints on world_rank %d: \n",world_rank); printArrayDouble(allDistPoints,(world_size * (dim + 1)),"minPoint => "); }
 
 	if (world_rank == 0)
 	{
-		printf("Entered world_rank \n");
 		struct stackNode * iterator = result->firstNode;
 		minLoc = findMinimum(allDistPoints, (dim+1)*world_size, &absMinDist, dim+1);
 		printf("found minimum \n");
@@ -190,7 +187,6 @@ if (world_rank == 0)
 		printArrayDoubles(&allDistPoints[minLoc+1], dim, 1);
 		while (iterator != NULL)
 		{
-			printf("iterator\n");
 			isOneResult = checkResult(iterator->pointArray,&allDistPoints[minLoc + 1],dim);
 			if (isOneResult)
 			{

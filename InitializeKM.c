@@ -57,13 +57,12 @@ double * allocateAndInitializeZeroDouble(int size_of_target)
 void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, int world_rank, int world_size)
 {
   initializeKM(KM,dim,ndata,dataArray,k,world_rank,world_size);
-  if (WAYPOINTS) { printf("Kmeans initialized.\n"); }
+  if (WAYPOINTS2) { printf("Kmeans initialized on world_rank %d.\n",(*KM)->world_rank); }
   GetKCentroids(*KM);
   MPI_Barrier(MCW);
-  if (WAYPOINTS) { printf("Got k centroids.\n"); }
+  if (WAYPOINTS) { printf("Got k centroids on world_rank %d.\n",(*KM)->world_rank); }
   ClusterizeKM(*KM, THRESHOLD);
   MPI_Barrier(MCW);
-  if (WAYPOINTS2) printf("Finished on world_rank %d \n",world_rank);
-  if (WAYPOINTS) { printf("Clusterized.\n"); }
+  if (WAYPOINTS2) printf("Clusterized on world_rank %d \n",(*KM)->world_rank);
   return;
 }

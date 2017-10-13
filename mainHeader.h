@@ -27,35 +27,38 @@
 
 
 #define WAYPOINTS 0
-#define DEBUG 0
 #define DEBUG_RANDOM 0
-#define DISPLAY_KM_INIT 0
-#define DISPLAY_KM_INIT_SOURCE 0
-#define DEBUG_SELECTK 0
-#define DEBUG_ASSIGN 0
+#define WAYPOINTS2 1
 #define DEBUG_THRESHOLD 0
-#define DEBUG_QS 0
-#define DEBUG_RADIUS 0
-#define SHOW_DP_NUMBER 0
-#define DEBUG_EMPTY_CLUSTERS 0
-#define FORCE_EMPTY 0
-#define DEBUG_CLUSTER_DIST 0
-#define QUERY_ANALYSIS 0
-#define QUERY_ANALYSIS2 0
+#define SHOW_DP_NUMBER 1
+#define DISPLAY_KM_INIT_SOURCE 0
+#define PARALLEL_SEARCH 1
+#define KM_SEARCH 0
 
-/* Parallelization debugs */
-#define FIRST_CENTROID 0
-#define NEXT_CENTROID 0
-#define NEXT_CENTROID1 0
-#define RECAL_A 0
-#define DEBUG_RADII 0
-#define DEBUG_EMPTY_PAR 0
-#define DEBUG_EMPTY_PAR1 0
-#define DEBUG_SEARCH_PAR1 0
-#define DEBUG_SEARCH_PAR2 0
-#define DEBUG_SEARCH_PAR3 0
-#define BRUTE_CHECK 0
-#define WAYPOINTS2 0
+// #define DEBUG 0
+// #define DEBUG_SELECTK 0
+// #define DEBUG_ASSIGN 0
+// #define DEBUG_QS 0
+// #define DEBUG_RADIUS 0
+// #define DEBUG_EMPTY_CLUSTERS 0
+// #define DEBUG_CLUSTER_DIST 0
+// #define QUERY_ANALYSIS 0
+// #define QUERY_ANALYSIS2 0
+//#define DISPLAY_KM_INIT 0
+//
+// /* Parallelization debugs */
+// #define FIRST_CENTROID 0
+// #define NEXT_CENTROID 0
+// #define NEXT_CENTROID1 0
+// #define RECAL_A 0
+// #define DEBUG_RADII 0
+// #define DEBUG_EMPTY_PAR 0
+// #define DEBUG_EMPTY_PAR1 0
+// #define DEBUG_SEARCH_PAR1 0
+// #define DEBUG_SEARCH_PAR2 0
+// #define DEBUG_SEARCH_PAR3 0
+// #define BRUTE_CHECK 0
+
 
 #define WRITE_RESULTS 0
 
@@ -185,7 +188,7 @@ void DeleteEmptyCluster(struct kmeans * KM, int i);
 
 int search(struct kmeans * KM, double * query, struct stackBase * result);
 
-int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDistances);
+int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDistancesLoc, double * ClusterDistancesGlob);
 
 double GetDistance2PointsQC(struct kmeans * KM, double * query, int cluster);
 

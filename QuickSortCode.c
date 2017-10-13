@@ -29,14 +29,12 @@ int partition( struct kmeans * KM, int left, int right)
   	if( i >= j ) { jump = j; break; }
     /* Swap data points here. */
     SwapPoints(KM,i,j);
-    if (DEBUG_QS) { printf("i = %d, j = %d \n",i,j); }
   	temp = (KM->cluster_assign)[i];
     (KM->cluster_assign)[i] = (KM->cluster_assign)[j];
     (KM->cluster_assign)[j] = temp;
   }
   /* Swap the pivot point. */
   SwapPoints(KM,left,jump);
-  if (DEBUG_QS) { printf("left = %d, jump = %d \n",left,jump); }
   temp = (KM->cluster_assign)[left];
   (KM->cluster_assign)[left] = (KM->cluster_assign)[jump];
   (KM->cluster_assign)[jump] = temp;

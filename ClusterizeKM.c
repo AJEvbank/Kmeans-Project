@@ -3,12 +3,7 @@
 
 void ClusterizeKM(struct kmeans * KM, int threshold)
 {
-  if (DEBUG_THRESHOLD)
-  {
-    printf("Centroids before first iteration \n");
-    printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid");
-    printf("\n\n");
-  }
+
   int i,changed;
   for (i = 0,changed = 1; changed != 0; i++)
   {
@@ -19,8 +14,7 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
   /* For each cluster, recalculate the centroid based on the data oints newly assigned. */
   changed = RecalculateCentroids(KM);
   if (WAYPOINTS) { printf("Centroids recalculated at iteration %d.\n",i); }
-  //changed++;
-  if (DISPLAY_KM_INIT) { displayKM(KM); }
+
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
 
     if (DEBUG_THRESHOLD)
@@ -55,7 +49,6 @@ void AssignDPs(struct kmeans * KM)
     for (j = 0; j < (KM->k); j++)
     {
       distance = GetDistance2PointsDC(KM, first_index, j);
-      //if (DEBUG_ASSIGN) printf("distance between %d and Centroid %d = %lf \n",i,j,distance);
       if (distance < minDist)
       {
         minDist = distance;
@@ -88,8 +81,6 @@ int RecalculateCentroids(struct kmeans * KM)
       centroidsLoc[group_coordinate + j] += (KM->data)[first_index + j];
     }
   }
-  if (RECAL_A) {  printArrayDouble(centroidsLoc,KM->k * KM->dim,"centroid ->"); }
-  if (RECAL_A) {  printArraysInt(newClusterSizesLoc,KM->k,"cluster size ->"); }
 
   /* Save the newly calculated cluster sizes in the kmeans structure. */
   for ( i = 0; i < KM->k; i++)
@@ -127,8 +118,6 @@ int RecalculateCentroids(struct kmeans * KM)
       centroidsGlob[first_index + j] /= (double)newClusterSizesGlob[i];
     }
   }
-  if (RECAL_A) {  printArrayDouble(centroidsGlob,KM->k * KM->dim,"GLOB centroid ->"); }
-  if (RECAL_A) {  printArraysInt(newClusterSizesGlob,KM->k,"GLOB cluster size ->"); }
 
   /* Save the newly calculated centroids in the kmeans structure. */
   for ( i = 0; i < KM->k; i++)
@@ -143,8 +132,6 @@ int RecalculateCentroids(struct kmeans * KM)
       }
     }
   }
-  if (RECAL_A) {  printArraysDouble((KM->cluster_centroid), KM->k, KM->dim,"KM.centroid -> "); }
-  if (RECAL_A) {  printArraysInt((KM->cluster_size),KM->k,"KM cluster size ->"); }
 
   free(newClusterSizesLoc);
   free(newClusterSizesGlob);
@@ -175,7 +162,6 @@ void SaveClusters(struct kmeans * KM)
   /* Deal with empty clusters. */
 
   EmptyClusters(KM);
-  if ( DEBUG_EMPTY_PAR1) { displayKM(KM); }
 
   return;
 }
@@ -198,14 +184,12 @@ void CalculateRadii(struct kmeans * KM)
     {
       start = (KM->cluster_start)[i];
       distance = GetDistance2PointsDC(KM,(start + j)*KM->dim,i);
-      if (DEBUG_RADIUS) { printf("distance between centroid %d and dp %d = %lf \n",i,start+j,distance); }
       if (distance > MaxRadiiLoc[i])
       {
         MaxRadiiLoc[i] = distance;
       }
     }
   }
-  if (DEBUG_RADII) { printf("Local radii in world_rank %d \n",KM->world_rank); printArrayDouble(MaxRadiiLoc,KM->k,"radius => "); }
 
   MPI_Allreduce(
                 MaxRadiiLoc,
@@ -217,7 +201,6 @@ void CalculateRadii(struct kmeans * KM)
   );
   MPI_Barrier(MCW);
 
-  if (DEBUG_RADII) { printf("Global radii in world_rank %d \n",KM->world_rank); printArrayDouble(MaxRadiiGlob,KM->k,"radius => "); }
 
   for (i = 0; i < (KM->k); i++)
   {
@@ -236,9 +219,7 @@ void EmptyClusters(struct kmeans * KM)
   for (i = 0; i < KM->k; i++)
   {
     ClusterSizeCheckLoc[i] = (KM->cluster_size)[i];
-    if (DEBUG_EMPTY_CLUSTERS) { printf("ClusterSizeCheck[%d] = %d \n",i,ClusterSizeCheckLoc[i]); }
   }
-  if (DEBUG_EMPTY_PAR) { printf("Local cluster sizes in world_rank %d \n",KM->world_rank); printArraysInt(ClusterSizeCheckLoc,KM->k,"local cluster size => "); }
 
   MPI_Allreduce(
                 ClusterSizeCheckLoc,
@@ -249,8 +230,7 @@ void EmptyClusters(struct kmeans * KM)
                 MCW
   );
   MPI_Barrier(MCW);
-  
-  if (DEBUG_EMPTY_PAR) { printf("Global cluster sizes in world_rank %d \n",KM->world_rank); printArraysInt(ClusterSizeCheckGlob,KM->k,"global cluster size => "); }
+
 
   for (i = limit-1; i >= 0; i--)
   {
@@ -261,7 +241,6 @@ void EmptyClusters(struct kmeans * KM)
   }
   free(ClusterSizeCheckLoc);
   free(ClusterSizeCheckGlob);
-  if (DEBUG_EMPTY_PAR) { printf("Local cluster sizes in kmeans of world_rank %d \n",KM->world_rank); printArraysInt(KM->cluster_size,KM->k,"kmeans cluster size => "); }
   return;
 }
 

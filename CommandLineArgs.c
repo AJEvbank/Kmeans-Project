@@ -191,21 +191,14 @@ int isNumber(const char * str)
 int generateRandomArray(double * dataArray, int domain, double max_double, int seeds, unsigned int * seedArray)
 {
 	int i,j,first_index;
-	double force_empty_array[] = {
-		1.00,1.00, 2.00,1.00, 2.00,2.00, 1.00,2.00,
-		9.00,9.00, 10.00,9.00, 10.00,10.00, 9.00,10.00,
-		1.00,9.00, 2.00,9.00, 2.00,10.00, 1.00,10.00,
-		9.00,1.00, 10.00,1.00, 10.00,2.00, 9.00,2.00
-	};
+
 	for (i = 0; i < seeds; i++)
 	{
 		srand(seedArray[i]);
 		first_index = i * domain/seeds;
-		if (DEBUG) { printf("seed = %d \n", seedArray[i]); }
 		for (j = 0; j < domain / seeds; j++)
 		{
 			dataArray[first_index + j] = ((double)rand() / (double)RAND_MAX) * max_double;
-			if (FORCE_EMPTY) { dataArray[first_index + j] = force_empty_array[first_index + j]; }
 		}
 	}
 	return 0;
@@ -215,7 +208,7 @@ double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, 
 {
 	int first_index, i, j, nearestPoint;
 	double minDist = INFINITY, calcDist = 0;
-	printf("Entered bruteForceSearch: \n");
+	if (WAYPOINTS2) printf("Entered bruteForceSearch: \n");
 	for (i = 0; i < ndata; i++)
 	{
 		calcDist = 0;
@@ -245,7 +238,6 @@ int findMinimum(double * Array, int size, double * minimum, int stride)
 	*minimum = INFINITY;
 	for (i = 0; i < size; i+=stride)
 	{
-		printf("Array[%d] = %lf \n",i,Array[i]);
 		if (Array[i] < *minimum)
 		{
 			*minimum = Array[i];

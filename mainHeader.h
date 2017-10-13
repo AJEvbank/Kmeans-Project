@@ -19,48 +19,26 @@
 #define MAX_DOUBLE 50.00
 #define MCW MPI_COMM_WORLD
 #define QSEED 30
-#define SEED_SET 1
+#define SEED_SET 2
 #define FIRST_CENTROID_SEED 13
 #define THRESHOLD 1000
+#define ROOT 0
 
 
 
 
 #define WAYPOINTS 0
-#define DEBUG_RANDOM 0
-#define WAYPOINTS2 1
+#define DEBUG_RANDOM 1
+#define WAYPOINTS2 0
+#define WAYPOINTS3 0
 #define DEBUG_THRESHOLD 0
-#define SHOW_DP_NUMBER 1
+#define SHOW_DP_NUMBER 0
 #define DISPLAY_KM_INIT_SOURCE 0
-#define PARALLEL_SEARCH 1
+#define PARALLEL_SEARCH 0
 #define KM_SEARCH 0
+#define PARALLEL_SEARCHA 0
 
-// #define DEBUG 0
-// #define DEBUG_SELECTK 0
-// #define DEBUG_ASSIGN 0
-// #define DEBUG_QS 0
-// #define DEBUG_RADIUS 0
-// #define DEBUG_EMPTY_CLUSTERS 0
-// #define DEBUG_CLUSTER_DIST 0
-// #define QUERY_ANALYSIS 0
-// #define QUERY_ANALYSIS2 0
-//#define DISPLAY_KM_INIT 0
-//
-// /* Parallelization debugs */
-// #define FIRST_CENTROID 0
-// #define NEXT_CENTROID 0
-// #define NEXT_CENTROID1 0
-// #define RECAL_A 0
-// #define DEBUG_RADII 0
-// #define DEBUG_EMPTY_PAR 0
-// #define DEBUG_EMPTY_PAR1 0
-// #define DEBUG_SEARCH_PAR1 0
-// #define DEBUG_SEARCH_PAR2 0
-// #define DEBUG_SEARCH_PAR3 0
-// #define BRUTE_CHECK 0
-
-
-#define WRITE_RESULTS 0
+#define WRITE_RESULTS 1
 
 /* Data Structures */
 
@@ -143,11 +121,13 @@ void printArrayKMD(double * array, int size);
 
 void printDataArray(double * dataArray, int dim, int ndata);
 
-void writeResults(int dim, int ndata, double* data, int* cluster_assign);
+void write_results(int dim, int ndata, double *data, int *cluster_assign, int k, double **cluster_centroids, int world_rank);
 
 void printArrayDouble(double * ArrayDouble, int size, const char * text);
 
 void printStack(struct stackBase *stack);
+
+void displayAverageDistance(double * clusterDistances, int size);
 
 /* GetKCentroids.c */
 

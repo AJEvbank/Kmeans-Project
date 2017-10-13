@@ -11,8 +11,9 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
 
   if (KM_SEARCH) { displayKM(KM); }
   if (WAYPOINTS2) printf("cluster distances on world_rank %d \n",KM->world_rank);
-  if (PARALLEL_SEARCH) { printf("nearestCluster on world_rank %d = %d \n",KM->world_rank,nearestCluster);
+  if (PARALLEL_SEARCHA) { printf("nearestCluster on world_rank %d = %d \n",KM->world_rank,nearestCluster);
                          printArrayDouble(ClusterDistancesGlob,KM->k,"cluster distance =>"); }
+  if (WAYPOINTS3) { displayAverageDistance(ClusterDistancesGlob,KM->k); }
 
   /* Iterate: do-while */
   /* Find nearest point in nearest cluster. Distance = straight line - radius */
@@ -85,7 +86,7 @@ int GetClusterDistances(struct kmeans * KM, double * query, double * ClusterDist
        nearestCluster = i;
      }
    }
-   
+
   return nearestCluster;
 }
 

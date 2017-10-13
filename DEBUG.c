@@ -96,21 +96,39 @@ void printDataArray(double * dataArray, int dim, int ndata)
 	return;
 }
 
-void writeResults(int dim, int ndata, double* data, int* cluster_assign)
+void write_results(int dim, int ndata, double *data, int *cluster_assign, int k, double **cluster_centroids, int world_rank)
 {
-	int i;
-	FILE* file = fopen("data.txt", "w");
-
-	fprintf(file, "%d\n", dim);
-	fprintf(file, "%d\n", ndata);
-	for (i = 0; i < dim * ndata; i++)
-		fprintf(file, "%lf\n", data[i]);
-
-	for (i = 0; i < ndata; i++)
-		fprintf(file, "%d\n", cluster_assign[i]);
-
-	fclose(file);
+    FILE *output_file;
+    char file_name[100];
+    sprintf(file_name, "data_%d.txt", world_rank);
+    output_file = fopen(file_name, "w");
+    // Write the number of data points
+       fprintf(output_file, "%d\n", ndata);
+    // Write out the data points and their cluster assignments
+    int i, j;
+    for (i = 0; i < ndata; i++)
+    {
+			for (j = 0; j < dim; j++)
+     		fprintf(output_file, "%lf ", data[i * dim + j]);
+	    fprintf(output_file, "%d \n", cluster_assign[i]);
+    }
+    fclose(output_file);
+    if (world_rank == 0)
+    {
+        // Write centroid information
+        output_file = fopen("centroids.txt", "w");
+        fprintf(output_file, "%d\n", k);
+        for (i = 0; i < k; i++)
+				{
+            for (j = 0; j < dim; j++)
+                fprintf(output_file, "%lf ", cluster_centroids[i][j]);
+            fprintf(output_file, "\n");
+        }
+        fclose(output_file);
+    }
+		return;
 }
+
 
 void printArray(int * nums, int count)
 {
@@ -182,4 +200,17 @@ void printStack(struct stackBase *stack)
 		printf("\n\n");
 		iterator = iterator->nextNode;
 	}
+}
+
+void displayAverageDistance(double * clusterDistances, int size)
+{
+	int i;
+	double avg = 0;
+	for (i = 0; i < size; i++)
+	{
+		avg += clusterDistances[i];
+	}
+	avg /= size;
+	printf("@@@@@@@@@@@@@@@@@@@@@@@@@@AVERAGE DISTANCE = %lf \n",avg);
+	return;
 }

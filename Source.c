@@ -74,14 +74,14 @@ int main(int argc, char** argv) {
 		printArrayDoubles(query, 1, dim);
 		if (world_size > 1)
 		{
-			MPI_Bcast(query, 2, MPI_DOUBLE, 0, MCW);
+			MPI_Bcast(query, dim, MPI_DOUBLE, 0, MCW);
 			MPI_Barrier(MCW);
 		}
 	}
 	else
 	{
 		generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds]);
-		MPI_Bcast(query, 2, MPI_DOUBLE, 0, MCW);
+		MPI_Bcast(query, dim, MPI_DOUBLE, 0, MCW);
 		MPI_Barrier(MCW);
 		printf("Query Point in rank = %d =>",world_rank);
 		printArrayDoubles(query, 1, dim);
@@ -127,7 +127,7 @@ if (WAYPOINTS) { printf("Search initiated.\n"); }
 int pointsSearched = 0,globPointsSearched = 0;
 pointsSearched = search(KM,query,result);
 MPI_Barrier(MCW);
-printf("pointsSearched found on world_rank %d\n",world_rank);
+printf("*****************************->%d pointsSearched on world_rank %d\n",pointsSearched,world_rank);
 MPI_Reduce(
 						&pointsSearched,
 						&globPointsSearched,
@@ -140,7 +140,7 @@ MPI_Reduce(
 MPI_Barrier(MCW);
 if (world_rank == 0)
 {
-	printf("%d points searched.\n",pointsSearched);
+	printf("&^&^&^&^&^&^&^&^&^&^&^&^&^&^->%d points searched in total.\n",globPointsSearched);
 }
 
 
@@ -217,7 +217,7 @@ if (world_rank == 0)
 
 if (WRITE_RESULTS)
 {
-	writeResults(dim,ndata, dataArray, KM->cluster_assign);
+	write_results(dim,subdomain,KM->data,KM->cluster_assign,k,KM->cluster_centroid,world_rank);
 }
 
 

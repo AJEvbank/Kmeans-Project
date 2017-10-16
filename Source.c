@@ -215,7 +215,7 @@ if (world_rank == 0)
 
 
 
-if (WRITE_RESULTS)
+if (dim == 2)
 {
 	write_results(dim,subdomain,KM->data,KM->cluster_assign,k,KM->cluster_centroid,world_rank);
 }

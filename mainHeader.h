@@ -13,14 +13,13 @@
 
 /* MACROS */
 
-#define DIM 2
-#define NDATA 60
-#define K 4
-#define MAX_DOUBLE 50.00
+#define DIM 128
+#define NDATA 10000
+#define K 128
+#define MAX_DOUBLE 1000.00
 #define MCW MPI_COMM_WORLD
 #define QSEED 30
 #define SEED_SET 2
-#define FIRST_CENTROID_SEED 13
 #define THRESHOLD 1000
 #define ROOT 0
 
@@ -38,7 +37,7 @@
 #define KM_SEARCH 0
 #define PARALLEL_SEARCHA 0
 
-#define WRITE_RESULTS 1
+
 
 /* Data Structures */
 

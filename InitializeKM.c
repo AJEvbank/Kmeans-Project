@@ -57,6 +57,6 @@ void kmeans(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dat
 {
   initializeKM(KM,dim,ndata,subdomain,dataArray,k);
   GetKCentroids(*KM);
-  ClusterizeKM(*KM, THRESHOLD);
+  ClusterizeKM(*KM);
   return;
 }

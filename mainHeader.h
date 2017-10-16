@@ -13,36 +13,12 @@
 
 /* MACROS */
 
-#define DIM 2
-#define NDATA 400
-#define K 20
-#define MAX_DOUBLE 50.00
-#define MCW MPI_COMM_WORLD
+#define DIM 128
+#define NDATA 10000
+#define K 128
+#define MAX_DOUBLE 1000.00
 #define QSEED 30
-#define SEED_SET 2
-#define FIRST_CENTROID_SEED 13
-#define THRESHOLD 1000
-
-
-
-
-#define WAYPOINTS 0
-#define DEBUG 0
-#define DEBUG_RANDOM 0
-#define DISPLAY_KM_INIT 0
-#define DEBUG_SELECTK 0
-#define DEBUG_ASSIGN 0
-#define DEBUG_THRESHOLD 0
-#define DEBUG_QS 0
-#define DEBUG_RADIUS 0
-#define SHOW_DP_NUMBER 0
-#define DEBUG_EMPTY_CLUSTERS 0
-#define FORCE_EMPTY 0
-#define DEBUG_CLUSTER_DIST 1
-#define QUERY_ANALYSIS 1
-#define QUERY_ANALYSIS2 0
-
-#define WRITE_RESULTS 0
+#define SEEDMULT 1
 
 /* Data Structures */
 
@@ -84,7 +60,7 @@ struct stackNode {
 
 /* Prototypes */
 
-void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double);
+void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double, int * seedMult);
 
 int isNumber(const char * str);
 
@@ -94,11 +70,11 @@ void printArrayDoubles(double * nums, int ndata, int dim);
 
 int generateRandomArray(double * dataArray, int subdomain, double max_double, int seeds, unsigned int * seedArray);
 
-double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult);
-
-int findMinimum(double * Array, int size, double * minimum, int stride);
+double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * Bresult);
 
 int checkResult(double * searchResult, double * bruteResult, int dim);
+
+void setSeedArray(unsigned int * seedArray, int seedMult);
 
 /* initialize the kmeans structure */
 
@@ -140,7 +116,7 @@ double GetDistance2PointsDC(struct kmeans *KM, int first_index, int centroid);
 
 /* ClusterizeKM.c */
 
-void ClusterizeKM(struct kmeans * KM, int threshold);
+void ClusterizeKM(struct kmeans * KM);
 
 void AssignDPs(struct kmeans * KM);
 

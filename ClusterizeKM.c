@@ -1,45 +1,24 @@
 #include "mainHeader.h"
 
 
-void ClusterizeKM(struct kmeans * KM, int threshold)
+void ClusterizeKM(struct kmeans * KM)
 {
-  if (DEBUG_THRESHOLD)
-  {
-    printf("Centroids before first iteration \n");
-    printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid");
-    printf("\n\n");
-  }
   int i,changed;
   for (i = 0,changed = 1; changed != 0; i++)
   {
 
   /* Assign each data point to the cluster with the nearest centroid */
+
   AssignDPs(KM);
-  if (WAYPOINTS) { printf("Assigned at iteration %d.\n",i); }
+
   /* For each cluster, recalculate the centroid based on the data oints newly assigned. */
+
   changed = RecalculateCentroids(KM);
-  if (WAYPOINTS) { printf("Centroids recalculated at iteration %d.\n",i); }
-  //changed++;
 
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
-
-    if (DEBUG_THRESHOLD)
-    {
-      printf("Centroids on iteration %d/%d \n",i,threshold);
-      printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid");
-      if (changed)
-      {
-        printf("Changes occurred...");
-      }
-      else
-      {
-        printf("No changes occurred...");
-      }
-      printf("\n\n");
-    }
   }
+
   SaveClusters(KM);
-  if (WAYPOINTS) { printf("Clusters saved.\n"); }
 
   return;
 }
@@ -169,7 +148,6 @@ void CalculateRadii(struct kmeans * KM)
     {
       start = (KM->cluster_start)[i];
       distance = GetDistance2PointsDC(KM,(start + j)*KM->dim,i);
-      if (DEBUG_RADIUS) { printf("distance between centroid %d and dp %d = %lf \n",i,start+j,distance); }
       if (distance > MaxRadii[i])
       {
         MaxRadii[i] = distance;
@@ -191,7 +169,6 @@ void EmptyClusters(struct kmeans * KM)
   for (i = 0; i < KM->k; i++)
   {
     ClusterSizeCheck[i] = (KM->cluster_size)[i];
-    if (DEBUG_EMPTY_CLUSTERS) { printf("ClusterSizeCheck[%d] = %lf \n",i,ClusterSizeCheck[i]); }
   }
 
   for (i = 0; i < limit; i++)

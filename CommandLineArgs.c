@@ -5,7 +5,7 @@
 
 #include "mainHeader.h"
 
-void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double)
+void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double,int * seedMult)
 {
 	if (argc >= 2)
 	{
@@ -67,7 +67,21 @@ void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double 
 	{
 		*k = K;
 	}
-
+	if (argc >= 6)
+	{
+		if (isNumber(argv[5]))
+		{
+			*seedMult = (int)atof(argv[5]);
+		}
+		if (*seedMult <= 0)
+		{
+			*seedMult = SEEDMULT;
+		}
+	}
+	else
+	{
+		*seedMult = SEEDMULT;
+	}
 	return;
 }
 
@@ -191,27 +205,19 @@ int isNumber(const char * str)
 int generateRandomArray(double * dataArray, int domain, double max_double, int seeds, unsigned int * seedArray)
 {
 	int i,j,first_index;
-	double force_empty_array[] = {
-		1.00,1.00, 2.00,1.00, 2.00,2.00, 1.00,2.00,
-		9.00,9.00, 10.00,9.00, 10.00,10.00, 9.00,10.00,
-		1.00,9.00, 2.00,9.00, 2.00,10.00, 1.00,10.00,
-		9.00,1.00, 10.00,1.00, 10.00,2.00, 9.00,2.00
-	};
 	for (i = 0; i < seeds; i++)
 	{
 		srand(seedArray[i]);
 		first_index = i * domain/seeds;
-		if (DEBUG) { printf("seed = %d \n", seedArray[i]); }
 		for (j = 0; j < domain / seeds; j++)
 		{
 			dataArray[first_index + j] = ((double)rand() / (double)RAND_MAX) * max_double;
-			if (FORCE_EMPTY) { dataArray[first_index + j] = force_empty_array[first_index + j]; }
 		}
 	}
 	return 0;
 }
 
-double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * result, double * Bresult)
+double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * Bresult)
 {
 	int first_index, i, j, nearestPoint;
 	double minDist = INFINITY, calcDist = 0;
@@ -238,22 +244,6 @@ double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, 
 	return minDist;
 }
 
-int findMinimum(double * Array, int size, double * minimum, int stride)
-{
-	int minIndex = 0, i;
-	*minimum = INFINITY;
-	for (i = 0; i < size; i+=stride)
-	{
-		printf("Array[%d] = %lf \n",i,Array[i]);
-		if (Array[i] < *minimum)
-		{
-			*minimum = Array[i];
-			minIndex = i;
-		}
-	}
-	return minIndex;
-}
-
 int checkResult(double * searchResult, double * bruteResult, int dim)
 {
 	int i;
@@ -267,7 +257,15 @@ int checkResult(double * searchResult, double * bruteResult, int dim)
 	return 1;
 }
 
-
+void setSeedArray(unsigned int * seedArray, int seedMult)
+{
+	int i;
+	for (i = 0; i < 4; i++)
+	{
+		seedArray[i] = seedArray[i] * seedMult;
+	}
+	return;
+}
 
 
 

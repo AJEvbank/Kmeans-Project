@@ -56,10 +56,7 @@ double * allocateAndInitializeZeroDouble(int size_of_target)
 void kmeans(struct kmeans ** KM, int dim, int ndata, int subdomain, double * dataArray, int k)
 {
   initializeKM(KM,dim,ndata,subdomain,dataArray,k);
-  if (WAYPOINTS) { printf("Kmeans initialized.\n"); }
   GetKCentroids(*KM);
-  if (WAYPOINTS) { printf("Got k centroids.\n"); }
   ClusterizeKM(*KM, THRESHOLD);
-  if (WAYPOINTS) { printf("Clusterized.\n"); }
   return;
 }

@@ -88,42 +88,23 @@ int main(int argc, char** argv) {
 		printArrayDoubles(query, 1, dim);
 	}
 
-	if (DEBUG_RANDOM)
-	{
-		int i, j, first_index;
-		printf("WORLD_RANK = %d \n", world_rank);
-		printf("[ %d \n", world_rank);
-		for (i = 0; i < subdomain; i++)
-		{
-			first_index = dim * i;
-			for (j = 0; j < dim; j++)
-			{
-				printf("%lf, ", dataArray[first_index + j]);
-			}
-			printf("\t%d\n", world_rank);
-		}
-		printf("] %d \n", world_rank);
-		MPI_Barrier(MPI_COMM_WORLD);
-	}
+
 
 	//At this point, every process has a data array of the correct size and the query point and all of the arguments.
 	//Now begin building the kmeans structure.
 /******************************************************************************************************************/
 
-if (WAYPOINTS) { printf("Starting kmeans construction...\n"); }
 struct kmeans * KM = NULL;
 
 kmeans(&KM,dim,ndata,subdomain,dataArray,k);
 
-if (WAYPOINTS) { printf("Kmeans construction completed\n"); }
-if (DISPLAY_KM_INIT) { displayKM(KM); }
+
 
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.
 /*******************************************************************************************************************/
 
 struct stackBase * result = initStack(dim);
-if (WAYPOINTS) { printf("Search initiated.\n"); }
 int pointsSearched = search(KM,query,result);
 printf("%d points searched.\n",pointsSearched);
 
@@ -178,11 +159,7 @@ printf("%d points searched.\n",pointsSearched);
 
 
 
-
-
-
-
-if (WRITE_RESULTS)
+if (dim == 2)
 {
 	writeResults(dim,ndata, dataArray, KM->cluster_assign);
 }

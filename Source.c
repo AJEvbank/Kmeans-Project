@@ -31,8 +31,7 @@ int main(int argc, char** argv) {
 	printArrayDoubles(query, 1, dim);
 
 
-	//At this point, every process has a data array of the correct size and the query point and all of the arguments.
-	//Now begin building the kmeans structure.
+//Now begin building the kmeans structure.
 /******************************************************************************************************************/
 
 struct kmeans * KM = NULL;
@@ -40,8 +39,7 @@ struct kmeans * KM = NULL;
 kmeans(&KM,dim,ndata,ndata,dataArray,k);
 
 
-	//At this point, every process has a local kmeans struct.
-	//The search can now be run.
+//The search can now be run.
 /*******************************************************************************************************************/
 
 struct stackBase * result = initStack(dim);
@@ -56,10 +54,8 @@ printf("->>>%d points searched.\n",pointsSearched);
 
 	//Use brute force search to find the nearest point.
 
-
 	int isOneResult;
 	double * LocalBresult = (double *)malloc(sizeof(double)*(dim+1));
-
 
 	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, ndata, LocalBresult);
 

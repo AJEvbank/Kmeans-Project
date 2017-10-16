@@ -13,3 +13,8 @@ Command Line Arguments:
    //This is a multiplier for the seed array { 1, 2, 3, 4 }.
 
 Note: Command line arguments cannot be skipped.
+
+Frank Ibem's clusters.py can be used. The program will create the file
+data.txt iff dim = 2. If this file has been created, then run clusters.py
+(included) in the program directory to view a png of the kmeans and its
+cluster assignments.

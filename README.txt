@@ -18,3 +18,12 @@ Frank Ibem's clusters.py can be used. The program will create the file
 data.txt iff dim = 2. If this file has been created, then run clusters.py
 (included) in the program directory to view a png of the kmeans and its
 cluster assignments.
+
+Output: The program will output the parameters used to construct the kmeans
+structure and the query point. It will also output the result(s) of the
+kmeans search algorithm and the results of the brute force search algorithm.
+The brute force algorithm will select only one point. If this point is one
+of the search results, then the program will print, "THE RESULT IS CORRECT".
+If the point is not one of the search results, then the program will print,
+"THE RESULT IS NOT CORRECT". The program will also output the number of points
+checked by the kmeans search algorithm.

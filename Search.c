@@ -44,6 +44,7 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
       }
       MPI_Barrier(MCW);
       counter++;
+
   }while(loop_control);
   if (WAYPOINTS2) printf("finished search while loop on world_rank %d \n",KM->world_rank);
   free(ClusterDistancesLoc);
@@ -120,7 +121,7 @@ int GetNearestPoint(struct kmeans * KM, struct stackBase * result, double * quer
 		for (j = 0; j < KM->dim; j++)
 		{
 			distanceCalculating += pow( fabs((query[j] - (KM->data)[dataPoint+j])), 2);
-			// if (QUERY_ANALYSIS2) { printf("with data[%d] -> %lf \n",(dataPoint+j), distanceCalculating); }
+			if (QUERY_ANALYSIS2) { printf("with data[%d] -> %lf \n",(dataPoint+j), distanceCalculating); }
 		}
 		distanceCalculating = sqrt(distanceCalculating);
 		// if (QUERY_ANALYSIS2) { printf("final = %lf \n", distanceCalculating); }

@@ -1,7 +1,7 @@
 #include "mainHeader.h"
 
 
-void ClusterizeKM(struct kmeans * KM, int threshold)
+void ClusterizeKM(struct kmeans * KM)
 {
 
   int i,changed;
@@ -17,20 +17,6 @@ void ClusterizeKM(struct kmeans * KM, int threshold)
 
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
 
-    if (DEBUG_THRESHOLD)
-    {
-      printf("Centroids on iteration %d/%d \n",i,threshold);
-      printArraysDouble(KM->cluster_centroid,KM->k,KM->dim,"centroid");
-      if (changed)
-      {
-        printf("Changes occurred...");
-      }
-      else
-      {
-        printf("No changes occurred...");
-      }
-      printf("\n\n");
-    }
   }
   SaveClusters(KM);
   if (WAYPOINTS) { printf("Clusters saved.\n"); }

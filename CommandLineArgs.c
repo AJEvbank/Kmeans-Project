@@ -5,7 +5,7 @@
 
 #include "mainHeader.h"
 
-void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double)
+void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double * max_double, unsigned int * seedMult)
 {
 	if (argc >= 2)
 	{
@@ -67,7 +67,21 @@ void getCmdArgs(int argc, char ** argv, int * dim, int * ndata, int * k, double 
 	{
 		*k = K;
 	}
-
+	if (argc >= 6)
+	{
+		if (isNumber(argv[5]))
+		{
+			*seedMult = (int)atof(argv[5]);
+		}
+		if (*seedMult <= 0)
+		{
+			*seedMult = SEEDMULT;
+		}
+	}
+	else
+	{
+		*seedMult = SEEDMULT;
+	}
 	return;
 }
 
@@ -188,20 +202,21 @@ int isNumber(const char * str)
 	}
 }
 
-int generateRandomArray(double * dataArray, int domain, double max_double, int seeds, unsigned int * seedArray)
+void generateRandomArray(double * dataArray, int domain, double max_double, int seeds, unsigned int * seedArray, unsigned int seedMult)
 {
 	int i,j,first_index;
 
 	for (i = 0; i < seeds; i++)
 	{
-		srand(seedArray[i]);
+		srand(seedArray[i] * seedMult);
+		//printf("i * seedMult = %d \n",seedArray[i] * seedMult);
 		first_index = i * domain/seeds;
 		for (j = 0; j < domain / seeds; j++)
 		{
 			dataArray[first_index + j] = ((double)rand() / (double)RAND_MAX) * max_double;
 		}
 	}
-	return 0;
+	return;
 }
 
 double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, double * Bresult)

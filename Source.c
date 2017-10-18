@@ -13,44 +13,10 @@ int main(int argc, char** argv) {
 
 	int dim, ndata, k;
 	double max_double;
-	unsigned int seedArray[4];
-	unsigned int querySeed;
-	if (SEED_SET == 1)
-	{
-		seedArray[1] = 1;
-		seedArray[2] = 2;
-		seedArray[3] = 3;
-		seedArray[4] = 4;
-		querySeed = 722;
-	}
-	else if (SEED_SET == 2)
-	{
-		seedArray[1] = 5;
-		seedArray[2] = 6;
-		seedArray[3] = 7;
-		seedArray[4] = 8;
-		querySeed = 144;
-	}
-	else if (SEED_SET == 3)
-	{
-		seedArray[1] = 9;
-		seedArray[2] = 10;
-		seedArray[3] = 11;
-		seedArray[4] = 12;
-		querySeed = 314;
-	}
-	else
-	{
-		seedArray[1] = 13;
-		seedArray[2] = 14;
-		seedArray[3] = 15;
-		seedArray[4] = 16;
-		querySeed = QSEED;
-	}
+	unsigned int seedArray[] = { 2, 4, 8, 16 };
+	unsigned int multSeed,querySeed = QSEED;
 
-
-
-	getCmdArgs(argc, argv, &dim, &ndata, &k,&max_double);
+	getCmdArgs(argc, argv, &dim, &ndata, &k,&max_double,&multSeed);
 	printf("From world_rank %d, dim = %d, ndata = %d, k = %d, max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
 
 	int subdomain = ndata / (world_size);
@@ -66,26 +32,10 @@ int main(int argc, char** argv) {
 	double * query = (double *)malloc(sizeof(double)*dim);
 	//double query[] = { 30.00, 40.00 };
 
-	if (world_rank == 0)
-	{
-		generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank]);
-		generateRandomArray(query, dim, max_double,1, &querySeed);
-		printf("Query Point in rank = %d =>", world_rank);
-		printArrayDoubles(query, 1, dim);
-		if (world_size > 1)
-		{
-			MPI_Bcast(query, dim, MPI_DOUBLE, 0, MCW);
-			MPI_Barrier(MCW);
-		}
-	}
-	else
-	{
-		generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds]);
-		MPI_Bcast(query, dim, MPI_DOUBLE, 0, MCW);
-		MPI_Barrier(MCW);
-		printf("Query Point in rank = %d =>",world_rank);
-		printArrayDoubles(query, 1, dim);
-	}
+	generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds],multSeed);
+	generateRandomArray(query, dim, max_double,1, &multSeed,querySeed);
+	printf("Query Point in rank = %d =>", world_rank);
+	printArrayDoubles(query, 1, dim);
 
 	if (DEBUG_RANDOM)
 	{
@@ -144,17 +94,6 @@ if (world_rank == 0)
 }
 
 
-
-
-
-
-
-
-
-
-
-
-
 /**********************************************************************************************************************************/
 
 
@@ -162,13 +101,10 @@ if (world_rank == 0)
 
 	//Use brute force search to find the nearest point.
 
-	double * resultA = (double *)malloc(sizeof(double)*dim);
-	int i,minLoc,isOneResult;
-	for (i = 0; i < dim; i++) { resultA[i] = query[i]; }
+	int minLoc,isOneResult;
 	double * LocalBresult = (double *)malloc(sizeof(double)*(dim+1));
 	double * allDistPoints = (double *)malloc(sizeof(double)*(dim+1)*world_size);
 	double absMinDist;
-
 
 	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, LocalBresult);
 	MPI_Gather(LocalBresult, dim + 1, MPI_DOUBLE, allDistPoints, dim + 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
@@ -177,11 +113,9 @@ if (world_rank == 0)
 	{
 		struct stackNode * iterator = result->firstNode;
 		minLoc = findMinimum(allDistPoints, (dim+1)*world_size, &absMinDist, dim+1);
-		printf("found minimum \n");
 		printf("Print result stack: \n");
 		printStack(result);
 		printf("BRUTE FORCE RESULT: \n");
-		printf("minLoc = %d \n",minLoc);
 		printArrayDoubles(allDistPoints,world_size,dim+1);
 		printf("absMinDist = %lf in rank %d \n",absMinDist,world_rank);
 		printArrayDoubles(&allDistPoints[minLoc+1], dim, 1);
@@ -197,6 +131,7 @@ if (world_rank == 0)
 				iterator = iterator->nextNode;
 			}
 		}
+		printf("\n");
 		if (isOneResult)
 		{
 			printf("THE RESULT IS CORRECT. \n");
@@ -205,15 +140,8 @@ if (world_rank == 0)
 		{
 			printf("THE RESULT IS NOT CORRECT. \n");
 		}
+		printf("\n");
 	}
-
-
-
-
-
-
-
-
 
 if (dim == 2)
 {

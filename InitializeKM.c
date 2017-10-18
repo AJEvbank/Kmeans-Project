@@ -60,9 +60,11 @@ void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, 
   if (WAYPOINTS2) { printf("Kmeans initialized on world_rank %d.\n",(*KM)->world_rank); }
   GetKCentroids(*KM);
   MPI_Barrier(MCW);
+  if (DISPLAY_KM_INIT_GETK) { displayKM(*KM); }
   if (WAYPOINTS) { printf("Got k centroids on world_rank %d.\n",(*KM)->world_rank); }
-  ClusterizeKM(*KM, THRESHOLD);
+  ClusterizeKM(*KM);
   MPI_Barrier(MCW);
+  if (DISPLAY_KM_INIT_CLUS) { displayKM(*KM); exit(0); }
   if (WAYPOINTS2) printf("Clusterized on world_rank %d \n",(*KM)->world_rank);
   return;
 }

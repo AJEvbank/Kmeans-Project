@@ -16,8 +16,8 @@ Command Line Arguments:
 
 Note: Command line arguments cannot be skipped.
 
-Frank Ibem's clusters.py can be used. The program will create the file
-data.txt iff dim = 2. If this file has been created, then run clusters.py
+Frank Ibem's clusters.py can be used. The program will create several files
+iff dim = 2. If these files have been created, then run clusters.py
 (included) in the program directory to view a png of the kmeans and its
 cluster assignments.
 
@@ -30,5 +30,4 @@ If the point is not one of the search results, then the program will print,
 "THE RESULT IS NOT CORRECT". The program will also output the number of points
 checked by the kmeans search algorithm.
 
-* - This value must be divisible by four in the parallelized version, but in
-this version it is not necessary for it to be divisible by four.
+* - This value must be divisible by four in this version.

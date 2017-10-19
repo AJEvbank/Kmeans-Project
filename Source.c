@@ -17,7 +17,6 @@ int main(int argc, char** argv) {
 	unsigned int multSeed,querySeed = QSEED;
 
 	getCmdArgs(argc, argv, &dim, &ndata, &k,&max_double,&multSeed);
-	printf("From world_rank %d, dim = %d, ndata = %d, k = %d, max_double = %lf \n\n", world_rank, dim, ndata, k, max_double);
 
 	int subdomain = ndata / (world_size);
 	if (world_rank == world_size - 1)
@@ -26,46 +25,29 @@ int main(int argc, char** argv) {
 	}
 	int numSeeds = 4 / world_size;
 
-	printf("From world_rank %d, subdomain = %d numSeeds = %d \n", world_rank, subdomain, numSeeds);
-
 	double * dataArray = (double *)malloc(sizeof(double)*subdomain*dim);
 	double * query = (double *)malloc(sizeof(double)*dim);
-	//double query[] = { 30.00, 40.00 };
 
-	generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds],multSeed);
+	generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds], multSeed);
 	generateRandomArray(query, dim, max_double,1, &multSeed,querySeed);
-	printf("Query Point in rank = %d =>", world_rank);
-	printArrayDoubles(query, 1, dim);
-
-	if (DEBUG_RANDOM)
+	if (world_rank == 0)
 	{
-		int i, j, first_index;
-		printf("WORLD_RANK = %d \n", world_rank);
-		printf("[ %d \n", world_rank);
-		for (i = 0; i < subdomain; i++)
-		{
-			first_index = dim * i;
-			for (j = 0; j < dim; j++)
-			{
-				printf("%lf, ", dataArray[first_index + j]);
-			}
-			printf("\t%d\n", world_rank);
-		}
-		printf("] %d \n", world_rank);
-		MPI_Barrier(MPI_COMM_WORLD);
+		printf("\n");
+		printf("Values dim = %d, ndata = %d, k = %d, max_double = %lf, subdomain = %d numSeeds = %d \n", dim, ndata, k, max_double, subdomain, numSeeds);
+		printf("Query Point =>");
+		printArrayDoubles(query, 1, dim);
 	}
+	//if (INIT_K) { printf("Data array: \n"); printDataArray(dataArray,dim,subdomain); }
 
 	//At this point, every process has a data array of the correct size and the query point and all of the arguments.
 	//Now begin building the kmeans structure.
 /******************************************************************************************************************/
 
-if (WAYPOINTS) { printf("Starting kmeans construction...\n"); }
 struct kmeans * KM = NULL;
 
 kmeans(&KM,dim,subdomain,dataArray,k,world_rank,world_size);
 
-if (WAYPOINTS) { printf("Kmeans construction completed\n"); }
-if (DISPLAY_KM_INIT_SOURCE) { printf("Kmeans in world_rank %d \n",world_rank); displayKM(KM); }
+//if (INIT_K) { displayKM(KM); }
 
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.
@@ -73,11 +55,10 @@ if (DISPLAY_KM_INIT_SOURCE) { printf("Kmeans in world_rank %d \n",world_rank); d
 
 MPI_Barrier(MCW);
 struct stackBase * result = initStack(dim);
-if (WAYPOINTS) { printf("Search initiated.\n"); }
 int pointsSearched = 0,globPointsSearched = 0;
 pointsSearched = search(KM,query,result);
 MPI_Barrier(MCW);
-printf("*****************************->%d pointsSearched on world_rank %d\n",pointsSearched,world_rank);
+
 MPI_Reduce(
 						&pointsSearched,
 						&globPointsSearched,
@@ -90,9 +71,9 @@ MPI_Reduce(
 MPI_Barrier(MCW);
 if (world_rank == 0)
 {
-	printf("&^&^&^&^&^&^&^&^&^&^&^&^&^&^->%d points searched in total.\n",globPointsSearched);
+	printf("->>>%d points searched in total.\n",globPointsSearched);
 }
-
+if (INTERESTING_CASE) printf("->>>>>>>>>>>>>>>%d points searched in total on world_rank %d.\n",pointsSearched,world_rank);
 
 /**********************************************************************************************************************************/
 
@@ -116,8 +97,7 @@ if (world_rank == 0)
 		printf("Print result stack: \n");
 		printStack(result);
 		printf("BRUTE FORCE RESULT: \n");
-		printArrayDoubles(allDistPoints,world_size,dim+1);
-		printf("absMinDist = %lf in rank %d \n",absMinDist,world_rank);
+		printf("distance to nearest point = %lf \n",absMinDist);
 		printArrayDoubles(&allDistPoints[minLoc+1], dim, 1);
 		while (iterator != NULL)
 		{
@@ -131,7 +111,6 @@ if (world_rank == 0)
 				iterator = iterator->nextNode;
 			}
 		}
-		printf("\n");
 		if (isOneResult)
 		{
 			printf("THE RESULT IS CORRECT. \n");

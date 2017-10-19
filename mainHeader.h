@@ -20,28 +20,9 @@
 #define MCW MPI_COMM_WORLD
 #define SEEDMULT 1
 #define QSEED 666
-//#define SEED_SET 2
-//#define THRESHOLD 1000
-//#define ROOT 0
 
-
-
-
-#define WAYPOINTS 0
-#define DEBUG_RANDOM 1
-#define WAYPOINTS2 0
-#define WAYPOINTS3 0
-#define DEBUG_THRESHOLD 0
-#define SHOW_DP_NUMBER 0
-#define DISPLAY_KM_INIT_SOURCE 0
-#define DISPLAY_KM_INIT_GETK 0
-#define PARALLEL_SEARCH 0
-#define KM_SEARCH 0
-#define PARALLEL_SEARCHA 0
-#define QUERY_ANALYSIS2 0
-#define DISPLAY_KM_INIT_CLUS 1
-
-
+#define INTERESTING_CASE 0
+#define INIT_K 1
 
 /* Data Structures */
 
@@ -113,6 +94,8 @@ double * allocateAndInitializeZeroDouble(int size_of_target);
 void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, int world_rank, int world_size);
 
 /* debugging displays - DEBUG.c */
+
+#define SHOW_DP_NUMBER 1
 
 void displayKM(struct kmeans * KM);
 

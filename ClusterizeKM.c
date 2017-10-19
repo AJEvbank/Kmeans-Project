@@ -9,17 +9,18 @@ void ClusterizeKM(struct kmeans * KM)
   {
 
   /* Assign each data point to the cluster with the nearest centroid */
+
   AssignDPs(KM);
-  if (WAYPOINTS) { printf("Assigned at iteration %d.\n",i); }
+
   /* For each cluster, recalculate the centroid based on the data oints newly assigned. */
+
   changed = RecalculateCentroids(KM);
-  if (WAYPOINTS) { printf("Centroids recalculated at iteration %d.\n",i); }
 
   /* Repeat the iteration until cluster assignments do not change or threshold is reached. */
 
   }
+
   SaveClusters(KM);
-  if (WAYPOINTS) { printf("Clusters saved.\n"); }
 
   return;
 }
@@ -95,6 +96,7 @@ int RecalculateCentroids(struct kmeans * KM)
   );
   MPI_Barrier(MCW);
 
+  if (INTERESTING_CASE) { if (KM->world_rank == 0) printArraysInt(newClusterSizesGlob,KM->k,"cluster size -> "); }
   /* Divide the sum of each dimension in each cluster by the size of the cluster. */
   for ( i = 0; i < KM->k; i++)
   {

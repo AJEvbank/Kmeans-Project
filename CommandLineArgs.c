@@ -209,7 +209,6 @@ void generateRandomArray(double * dataArray, int domain, double max_double, int 
 	for (i = 0; i < seeds; i++)
 	{
 		srand(seedArray[i] * seedMult);
-		//printf("i * seedMult = %d \n",seedArray[i] * seedMult);
 		first_index = i * domain/seeds;
 		for (j = 0; j < domain / seeds; j++)
 		{
@@ -223,7 +222,6 @@ double bruteForceSearch(double * dataArray, double * query, int dim, int ndata, 
 {
 	int first_index, i, j, nearestPoint;
 	double minDist = INFINITY, calcDist = 0;
-	if (WAYPOINTS2) printf("Entered bruteForceSearch: \n");
 	for (i = 0; i < ndata; i++)
 	{
 		calcDist = 0;

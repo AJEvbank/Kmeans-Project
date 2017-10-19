@@ -22,7 +22,10 @@
 #define QSEED 666
 
 #define INTERESTING_CASE 0
-#define INIT_K 1
+#define INIT_K 0
+#define INIT_K1 0
+#define INIT_K2 0
+#define INIT_K3 0
 
 /* Data Structures */
 

@@ -37,7 +37,7 @@ int main(int argc, char** argv) {
 		printf("Query Point =>");
 		printArrayDoubles(query, 1, dim);
 	}
-	//if (INIT_K) { printf("Data array: \n"); printDataArray(dataArray,dim,subdomain); }
+	if (INIT_K2) { printf("Data array on world_rank %d: \n",world_rank); printDataArray(dataArray,dim,subdomain); MPI_Barrier(MCW); }
 
 	//At this point, every process has a data array of the correct size and the query point and all of the arguments.
 	//Now begin building the kmeans structure.

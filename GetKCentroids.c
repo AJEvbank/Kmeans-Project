@@ -53,6 +53,7 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
       }
     }
   }
+  if (INIT_K1) { printf("minDistArray on world_rank %d: \n",KM->world_rank); printArrayDouble(minDistArray, KM->ndata, "min dist to cent -> "); exit(0); }
 
   for (i = 0; i < KM->ndata; i++)
   {
@@ -71,17 +72,19 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
   MPI_Allgather(nextCent,(KM->dim + 1),MPI_DOUBLE,AllNextCentroids,(KM->dim + 1),MPI_DOUBLE,MCW);
   MPI_Barrier(MCW);
 
-  double minWorldDist = INFINITY;
+  double maxWorldDist = -INFINITY;
   int stride = 0,minLoc;
   for (i = 0; i < KM->world_size; i++)
   {
     stride = i * (KM->dim + 1);
-    if (AllNextCentroids[stride] < minWorldDist)
+    if (AllNextCentroids[stride] > maxWorldDist)
     {
-      minWorldDist = AllNextCentroids[stride];
+      maxWorldDist = AllNextCentroids[stride];
       minLoc = stride+1;
     }
   }
+
+  if (INIT_K3) { printf("maxWorldDist on world_rank %d = %lf \n",KM->world_rank,maxWorldDist); exit(0); }
 
   for (i = 0; i < KM->dim; i++)
   {

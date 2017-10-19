@@ -33,7 +33,6 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
       counter++;
 
   }while(loop_control);
-  if (INTERESTING_CASE) { if (KM->world_rank == 0) printArrayDouble(ClusterDistancesGlob,KM->k,"dist to cluster -> "); }
   free(ClusterDistancesLoc);
   free(ClusterDistancesGlob);
   return pointCount;

@@ -96,7 +96,6 @@ int RecalculateCentroids(struct kmeans * KM)
   );
   MPI_Barrier(MCW);
 
-  if (INTERESTING_CASE) { if (KM->world_rank == 0) printArraysInt(newClusterSizesGlob,KM->k,"cluster size -> "); }
   /* Divide the sum of each dimension in each cluster by the size of the cluster. */
   for ( i = 0; i < KM->k; i++)
   {

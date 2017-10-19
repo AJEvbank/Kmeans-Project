@@ -37,7 +37,6 @@ int main(int argc, char** argv) {
 		printf("Query Point =>");
 		printArrayDoubles(query, 1, dim);
 	}
-	if (INIT_K2) { printf("Data array on world_rank %d: \n",world_rank); printDataArray(dataArray,dim,subdomain); MPI_Barrier(MCW); }
 
 	//At this point, every process has a data array of the correct size and the query point and all of the arguments.
 	//Now begin building the kmeans structure.
@@ -46,8 +45,6 @@ int main(int argc, char** argv) {
 struct kmeans * KM = NULL;
 
 kmeans(&KM,dim,subdomain,dataArray,k,world_rank,world_size);
-
-//if (INIT_K) { displayKM(KM); }
 
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.
@@ -73,12 +70,8 @@ if (world_rank == 0)
 {
 	printf("->>>%d points searched in total.\n",globPointsSearched);
 }
-if (INTERESTING_CASE) printf("->>>>>>>>>>>>>>>%d points searched in total on world_rank %d.\n",pointsSearched,world_rank);
 
 /**********************************************************************************************************************************/
-
-
-
 
 	//Use brute force search to find the nearest point.
 

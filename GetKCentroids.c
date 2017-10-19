@@ -53,7 +53,6 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
       }
     }
   }
-  if (INIT_K1) { printf("minDistArray on world_rank %d: \n",KM->world_rank); printArrayDouble(minDistArray, KM->ndata, "min dist to cent -> "); exit(0); }
 
   for (i = 0; i < KM->ndata; i++)
   {
@@ -83,8 +82,6 @@ int GetNextCluster(struct kmeans * KM, int numCentroids)
       minLoc = stride+1;
     }
   }
-
-  if (INIT_K3) { printf("maxWorldDist on world_rank %d = %lf \n",KM->world_rank,maxWorldDist); exit(0); }
 
   for (i = 0; i < KM->dim; i++)
   {

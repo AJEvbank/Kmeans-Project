@@ -60,7 +60,6 @@ void kmeans(struct kmeans ** KM, int dim, int ndata, double * dataArray, int k, 
   MPI_Barrier(MCW);
   GetKCentroids(*KM);
   MPI_Barrier(MCW);
-  if (INIT_K) { printf("On world_rank %d \n",(*KM)->world_rank); printArraysDouble((*KM)->cluster_centroid, (*KM)->k, (*KM)->dim, "initial centroid -> "); }
   ClusterizeKM(*KM);
   MPI_Barrier(MCW);
   return;

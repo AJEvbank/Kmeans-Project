@@ -14,6 +14,10 @@ Command Line Arguments:
    //This is a multiplier for the seed array { 2, 4, 8, 16 } and it is the
    //seed for the query point.
 
+Example: mpirun -np 4 ./source 3 100 50.00 4 987
+This runs the program with 4 processes using 3 dimensions, 100 datapoints, max
+size of data point value of 50, 4 clusters, and a seed multiplier of 987.
+
 Note: Command line arguments cannot be skipped.
 
 Frank Ibem's clusters.py can be used. The program will create several files

@@ -22,6 +22,7 @@
 #define QSEED 666
 
 #define KM_TEST1 1
+
 /* Data Structures */
 
 enum isNumStates {
@@ -45,7 +46,6 @@ struct kmeans {
 	double * cluster_radius;
 	double ** cluster_centroid;
 	int * cluster_assign;
-	//int * cluster_group;
 };
 
 struct stackBase {
@@ -112,6 +112,8 @@ void printArrayDouble(double * ArrayDouble, int size, const char * text);
 void printStack(struct stackBase *stack);
 
 void displayAverageDistance(double * clusterDistances, int size);
+
+void displaySelectedFromKM(struct kmeans * KM, int singleValues, int dataArray, int cluster_size, int cluster_start, int cluster_radius, int cluster_centroid, int cluster_assign);
 
 /* GetKCentroids.c */
 

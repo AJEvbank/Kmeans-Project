@@ -23,9 +23,6 @@ void displayKM(struct kmeans * KM)
 	printf("cluster_assign: \n");
 	printArraysInt(KM->cluster_assign, KM->ndata, "cluster of DP");
 
-	// printf("cluster_group: \n");
-	// printArraysInt(KM->cluster_group, KM->ndata, "data point-> ");
-
 	return;
 }
 
@@ -212,5 +209,53 @@ void displayAverageDistance(double * clusterDistances, int size)
 	}
 	avg /= size;
 	printf("@@@@@@@@@@@@@@@@@@@@@@@@@@AVERAGE DISTANCE = %lf \n",avg);
+	return;
+}
+
+void displaySelectedFromKM(struct kmeans * KM, int singleValues, int dataArray, int cluster_size, int cluster_start, int cluster_radius, int cluster_centroid, int cluster_assign)
+{
+	printf("Kmeans on world_rank %d/%d: \n",KM->world_rank,KM->world_size);
+	
+	if (singleValues)
+	{
+		printf("dim = %d, ndata = %d, k = %d \n", KM->dim, KM->ndata, KM->k);
+	}
+
+	if (dataArray)
+	{
+		printf("Working data array: \n");
+		printDataArray(KM->data, KM->dim, KM->ndata);
+	}
+
+	if (cluster_size)
+	{
+		printf("cluster_size: \n");
+		printArraysInt(KM->cluster_size, KM->k, "size of cluster");
+	}
+
+	if (cluster_start)
+	{
+		printf("cluster_start: \n");
+		printArraysInt(KM->cluster_start, KM->k, "start of cluster");
+	}
+
+	if (cluster_radius)
+	{
+		printf("cluster_radius: \n");
+		printArrayDouble(KM->cluster_radius, KM->k, "radius of cluster");
+	}
+
+	if (cluster_centroid)
+	{
+		printf("cluster_centroid: \n");
+		printArraysDouble(KM->cluster_centroid, KM->k, KM->dim, "centroid of cluster");
+	}
+
+	if (cluster_assign)
+	{
+		printf("cluster_assign: \n");
+		printArraysInt(KM->cluster_assign, KM->ndata, "cluster of DP");
+	}
+
 	return;
 }

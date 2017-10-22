@@ -45,7 +45,7 @@ int main(int argc, char** argv) {
 struct kmeans * KM = NULL;
 
 kmeans(&KM,dim,subdomain,dataArray,k,world_rank,world_size);
-if (KM_TEST1) displayKM(KM);
+if (KM_TEST1) displaySelectedFromKM(KM,1,0,1,1,1,1,0);
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.
 /*******************************************************************************************************************/

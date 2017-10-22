@@ -21,6 +21,7 @@
 #define SEEDMULT 1
 #define QSEED 666
 
+#define KM_TEST1 1
 /* Data Structures */
 
 enum isNumStates {

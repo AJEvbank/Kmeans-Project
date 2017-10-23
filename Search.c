@@ -2,6 +2,9 @@
 
 int search(struct kmeans * KM, double * query, struct stackBase * result)
 {
+  // clock_t end;
+  // clock_t begin = clock();
+  // printf("\nstarted search at %ld cycles \n",begin);
   int loop_control = 1,pointCount = 0;
   /* Calculate distances to clusters. */
   double * ClusterDistancesLoc = allocateAndInitializeZeroDouble(KM->k);
@@ -35,6 +38,9 @@ int search(struct kmeans * KM, double * query, struct stackBase * result)
   }while(loop_control);
   free(ClusterDistancesLoc);
   free(ClusterDistancesGlob);
+  // end = clock();
+  // printf("\nended search at %ld cycles \n",end);
+  // printf("total cycles = %ld\n", end - begin);
   return pointCount;
 }
 

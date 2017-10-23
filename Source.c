@@ -43,7 +43,7 @@ int main(int argc, char** argv) {
 	if (world_rank == 0)
 	{
 		printf("\n");
-		printf("Values dim = %d, ndata = %d, k = %d, max_double = %lf, subdomain = %d numSeeds = %d \n", dim, ndata, k, max_double, subdomain, numSeeds);
+		printf("Values dim = %d, ndata = %d, k = %d, max_double = %lf, subdomain = %d, numSeeds = %d, cycles per second = %ld \n\n", dim, ndata, k, max_double, subdomain, numSeeds,CLOCKS_PER_SEC);
 		printf("Query Point =>");
 		printArrayDoubles(query, 1, dim);
 	}
@@ -84,7 +84,11 @@ MPI_Barrier(MCW);
 
 if (world_rank == 0)
 {
-	printf("Time to build kmeans structure = %ld seconds \n",(global_maximum_end - global_minimum_start)/CLOCKS_PER_SEC);
+	printf("\n");
+	printf("begin build = %ld cycles \n",global_minimum_start);
+	printf("end build = %ld cycles \n",global_maximum_end);
+	printf("Cycles to build kmeans structure = %ld \n",(global_maximum_end - global_minimum_start));
+	printf("Time to build kmeans structure = %lf seconds \n",((double)(global_maximum_end - global_minimum_start))/(double)CLOCKS_PER_SEC);
 }
 
 if (KM_TEST1) displaySelectedFromKM(KM,1,0,1,1,1,1,0);
@@ -94,12 +98,16 @@ if (KM_TEST1) displaySelectedFromKM(KM,1,0,1,1,1,1,0);
 
 MPI_Barrier(MCW);
 begin_search_kmeans = clock();
+global_minimum_start = begin_search_kmeans;
 
 struct stackBase * result = initStack(dim);
 int pointsSearched = 0,globPointsSearched = 0;
 pointsSearched = search(KM,query,result);
 
-end_search_kmeans = clock();
+do {
+	end_search_kmeans = clock();
+}while(end_search_kmeans == begin_search_kmeans);
+global_maximum_end = end_search_kmeans;
 MPI_Barrier(MCW);
 
 MPI_Reduce(
@@ -136,13 +144,20 @@ MPI_Barrier(MCW);
 if (world_rank == 0)
 {
 	printf("\n");
-	printf("Time to search kmeans structure = %ld seconds \n",(global_maximum_end - global_minimum_start)/CLOCKS_PER_SEC);
-	printf("->>>%d points searched in total.\n\n",globPointsSearched);
+	printf("begin search = %ld cycles \n",global_minimum_start);
+	printf("end search = %ld cycles \n",global_maximum_end);
+	printf("Cycles to search kmeans structure = %ld \n",(global_maximum_end - global_minimum_start));
+	printf("Time to search kmeans structure = %lf seconds \n",((double)(global_maximum_end - global_minimum_start))/(double)CLOCKS_PER_SEC);
+	printf("->>>%d points searched in total.\n",globPointsSearched);
 }
 
 /**********************************************************************************************************************************/
 
 	//Use brute force search to find the nearest point.
+
+	MPI_Barrier(MCW);
+	begin_brute_force_search = clock();
+	global_minimum_start = begin_brute_force_search;
 
 	int minLoc,isOneResult;
 	double * LocalBresult = (double *)malloc(sizeof(double)*(dim+1));
@@ -150,7 +165,53 @@ if (world_rank == 0)
 	double absMinDist;
 
 	LocalBresult[0] = bruteForceSearch(dataArray, query, dim, subdomain, LocalBresult);
-	MPI_Gather(LocalBresult, dim + 1, MPI_DOUBLE, allDistPoints, dim + 1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+	MPI_Gather(
+							LocalBresult,
+							dim + 1,
+							MPI_DOUBLE,
+							allDistPoints,
+							dim + 1,
+							MPI_DOUBLE,
+							0,
+							MPI_COMM_WORLD
+	);
+
+	do {
+		end_brute_force_search = clock();
+	}while(end_brute_force_search == begin_brute_force_search);
+	global_maximum_end = end_brute_force_search;
+	MPI_Barrier(MCW);
+
+	MPI_Reduce(
+							&begin_brute_force_search,
+							&global_minimum_start,
+							1,
+							MPI_LONG,
+							MPI_MIN,
+							0,
+							MCW
+	);
+	MPI_Barrier(MCW);
+	MPI_Reduce(
+							&end_brute_force_search,
+							&global_maximum_end,
+							1,
+							MPI_LONG,
+							MPI_MAX,
+							0,
+							MCW
+	);
+	MPI_Barrier(MCW);
+
+	if (world_rank == 0)
+	{
+		printf("\n");
+		printf("begin brute force search = %ld cycles \n",global_minimum_start);
+		printf("end brute force search = %ld cycles \n",global_maximum_end);
+		printf("Cycles to search kmeans structure = %ld \n",(global_maximum_end - global_minimum_start));
+		printf("Time for brute force search = %lf seconds \n\n",((double)(global_maximum_end - global_minimum_start))/(double)CLOCKS_PER_SEC);
+	}
+
 
 	if (world_rank == 0)
 	{

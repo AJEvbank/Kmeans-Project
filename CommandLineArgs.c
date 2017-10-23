@@ -269,7 +269,7 @@ int checkResult(double * searchResult, double * bruteResult, int dim)
 		{
 			return 0;
 		}
-	}
+	}	
 	return 1;
 }
 

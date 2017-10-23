@@ -2,19 +2,20 @@ Team Member Names: Austin Eubank, Frank Conlon, Zohreh Safari
 
 Installation: Use the make file to compile the program.
 
-Running: To run type mpirun -np ## ./source .
+Running: To run type mpirun -np ## ./source @@ @@ @@ @@ @@.
 ## - Can be either 1, 2, or 4 processes.
+@@ - Command line arguments are optional.
 
 Command Line Arguments:
 1: dim, default dim = 128
 2: ndata, default ndata = 10000 (should be divisible by 4)
 3: maximum size of data point values, default max_double = 1000.00
-4: number of clusters, default k = 128 *
+4: number of clusters, default k = 128 (must be divisible by 4)
 5: seed multiplier (any positive non-zero integer), default seedMult = 1
-   //This is a multiplier for the seed array { 2, 4, 8, 16 } and it is the
-   //seed for the query point.
+   //This is a multiplier for the seed array { 2, 4, 8, 16 } and it is a
+   //multiplier for the query point seed (666).
 
-Example: mpirun -np 4 ./source 3 100 50.00 4 987
+Example: mpirun -np 4 ./source 3 100 50 4 987
 This runs the program with 4 processes using 3 dimensions, 100 datapoints, max
 size of data point value of 50, 4 clusters, and a seed multiplier of 987.
 
@@ -33,5 +34,3 @@ of the search results, then the program will print, "THE RESULT IS CORRECT".
 If the point is not one of the search results, then the program will print,
 "THE RESULT IS NOT CORRECT". The program will also output the number of points
 checked by the kmeans search algorithm.
-
-* - This value must be divisible by four in this version.

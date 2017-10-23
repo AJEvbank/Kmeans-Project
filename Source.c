@@ -2,6 +2,16 @@
 
 int main(int argc, char** argv) {
 
+	// Set up clock check
+	clock_t begin_build_kmeans;
+	clock_t end_build_kmeans;
+	clock_t begin_search_kmeans;
+	clock_t end_search_kmeans;
+	clock_t begin_brute_force_search;
+	clock_t end_brute_force_search;
+	clock_t global_minimum_start;
+	clock_t global_maximum_end;
+
 	// Initialize the MPI environment
 	MPI_Init(&argc, &argv);
 	// Find out rank, size
@@ -29,7 +39,7 @@ int main(int argc, char** argv) {
 	double * query = (double *)malloc(sizeof(double)*dim);
 
 	generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds], multSeed);
-	generateRandomArray(query, dim, max_double,1, &multSeed,querySeed);
+	generateRandomArray(query, dim, max_double,1, &querySeed,multSeed);
 	if (world_rank == 0)
 	{
 		printf("\n");
@@ -42,18 +52,75 @@ int main(int argc, char** argv) {
 	//Now begin building the kmeans structure.
 /******************************************************************************************************************/
 
+begin_build_kmeans = clock();
+
 struct kmeans * KM = NULL;
 
 kmeans(&KM,dim,subdomain,dataArray,k,world_rank,world_size);
+
+end_build_kmeans = clock();
+MPI_Barrier(MCW);
+
+MPI_Reduce(
+						&begin_build_kmeans,
+						&global_minimum_start,
+						1,
+						MPI_LONG,
+						MPI_MIN,
+						0,
+						MCW
+);
+MPI_Barrier(MCW);
+MPI_Reduce(
+						&end_build_kmeans,
+						&global_maximum_end,
+						1,
+						MPI_LONG,
+						MPI_MAX,
+						0,
+						MCW
+);
+MPI_Barrier(MCW);
+
+if (world_rank == 0)
+{
+	printf("Time to build kmeans structure = %ld seconds \n",(global_maximum_end - global_minimum_start)/CLOCKS_PER_SEC);
+}
+
 if (KM_TEST1) displaySelectedFromKM(KM,1,0,1,1,1,1,0);
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.
 /*******************************************************************************************************************/
 
 MPI_Barrier(MCW);
+begin_search_kmeans = clock();
+
 struct stackBase * result = initStack(dim);
 int pointsSearched = 0,globPointsSearched = 0;
 pointsSearched = search(KM,query,result);
+
+end_search_kmeans = clock();
+MPI_Barrier(MCW);
+
+MPI_Reduce(
+						&begin_search_kmeans,
+						&global_minimum_start,
+						1,
+						MPI_LONG,
+						MPI_MIN,
+						0,
+						MCW
+);
+MPI_Barrier(MCW);
+MPI_Reduce(
+						&end_search_kmeans,
+						&global_maximum_end,
+						1,
+						MPI_LONG,
+						MPI_MAX,
+						0,
+						MCW
+);
 MPI_Barrier(MCW);
 
 MPI_Reduce(
@@ -68,7 +135,9 @@ MPI_Reduce(
 MPI_Barrier(MCW);
 if (world_rank == 0)
 {
-	printf("->>>%d points searched in total.\n",globPointsSearched);
+	printf("\n");
+	printf("Time to search kmeans structure = %ld seconds \n",(global_maximum_end - global_minimum_start)/CLOCKS_PER_SEC);
+	printf("->>>%d points searched in total.\n\n",globPointsSearched);
 }
 
 /**********************************************************************************************************************************/
@@ -85,18 +154,32 @@ if (world_rank == 0)
 
 	if (world_rank == 0)
 	{
+		int i;
 		struct stackNode * iterator = result->firstNode;
 		minLoc = findMinimum(allDistPoints, (dim+1)*world_size, &absMinDist, dim+1);
-		printf("Print result stack: \n");
-		printStack(result);
+
+		printf("Result stack date: \n");
+		printf("stackDepth = %d, firstNode = %p \n", result->stackDepth,(void *)result->firstNode);
+		printf("distance to query point = %lf \n", result->firstNode->distance);
+
+		printf("\n");
+
 		printf("BRUTE FORCE RESULT: \n");
 		printf("distance to nearest point = %lf \n",absMinDist);
-		printArrayDoubles(&allDistPoints[minLoc+1], dim, 1);
+
 		while (iterator != NULL)
 		{
 			isOneResult = checkResult(iterator->pointArray,&allDistPoints[minLoc + 1],dim);
 			if (isOneResult)
 			{
+				printf("\n");
+				printf("Search Result: \t\t Brute Force Result: \n");
+				for (i = 0; i < dim; i++)
+				{
+					printf("%lf \t\t %lf \n",(iterator->pointArray)[i],allDistPoints[minLoc + 1 + i]);
+				}
+				printf("In cluster %d \n",iterator->cluster);
+				printf("\n");
 				break;
 			}
 			else
@@ -113,6 +196,12 @@ if (world_rank == 0)
 			printf("THE RESULT IS NOT CORRECT. \n");
 		}
 		printf("\n");
+		if (result->stackDepth > 1)
+		{
+			printf("Kmeans search stack depth greater than 1. \n");
+			printf("Stack: \n");
+			printStack(result);
+		}
 	}
 
 if (dim == 2)
@@ -121,8 +210,8 @@ if (dim == 2)
 }
 
 
-	//clearStack(result);
-	//free(result);
+	clearStack(result);
+	free(result);
 	free(LocalBresult);
 	free(allDistPoints);
 	free(dataArray);

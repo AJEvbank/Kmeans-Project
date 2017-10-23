@@ -8,6 +8,7 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <time.h>
 #include "math.h"
 
 
@@ -21,7 +22,7 @@
 #define SEEDMULT 1
 #define QSEED 666
 
-#define KM_TEST1 1
+#define KM_TEST1 0
 
 /* Data Structures */
 

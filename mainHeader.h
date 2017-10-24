@@ -22,7 +22,6 @@
 #define SEEDMULT 1
 #define QSEED 666
 
-#define KM_TEST1 0
 
 /* Data Structures */
 

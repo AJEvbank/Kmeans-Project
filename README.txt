@@ -27,8 +27,8 @@ iff dim = 2. If these files have been created, then run clusters.py
 cluster assignments.
 
 Output: The program will output the parameters used to construct the kmeans
-structure and the query point. It will also output the result(s) of the
-kmeans search algorithm and the results of the brute force search algorithm.
+structure and the query point. It will also output the time and result(s) of
+the kmeans search algorithm and of the brute force search algorithm.
 The brute force algorithm will select only one point. If this point is one
 of the search results, then the program will print, "THE RESULT IS CORRECT".
 If the point is not one of the search results, then the program will print,

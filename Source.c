@@ -3,14 +3,7 @@
 int main(int argc, char** argv) {
 
 	// Set up clock check
-	clock_t begin_build_kmeans;
-	clock_t end_build_kmeans;
-	clock_t begin_search_kmeans;
-	clock_t end_search_kmeans;
-	clock_t begin_brute_force_search;
-	clock_t end_brute_force_search;
-	clock_t global_minimum_start;
-	clock_t global_maximum_end;
+	double start, end, global_start, global_end;
 
 	// Initialize the MPI environment
 	MPI_Init(&argc, &argv);
@@ -40,7 +33,7 @@ int main(int argc, char** argv) {
 
 	generateRandomArray(dataArray, subdomain * dim, max_double, numSeeds, &seedArray[world_rank * numSeeds], multSeed);
 	generateRandomArray(query, dim, max_double,1, &querySeed,multSeed);
-	if (world_rank == 0)
+	if (world_rank == 0) // Outputs are limited to world_rank 0.
 	{
 		printf("\n");
 		printf("Values dim = %d, ndata = %d, k = %d, max_double = %lf, subdomain = %d, numSeeds = %d, cycles per second = %ld \n\n", dim, ndata, k, max_double, subdomain, numSeeds,CLOCKS_PER_SEC);
@@ -52,30 +45,34 @@ int main(int argc, char** argv) {
 	//Now begin building the kmeans structure.
 /******************************************************************************************************************/
 
-begin_build_kmeans = clock();
+MPI_Barrier(MCW);
+start = MPI_Wtime();
+global_start = start;
 
 struct kmeans * KM = NULL;
 
 kmeans(&KM,dim,subdomain,dataArray,k,world_rank,world_size);
 
-end_build_kmeans = clock();
+
 MPI_Barrier(MCW);
+end = MPI_Wtime();
+global_end = end;
 
 MPI_Reduce(
-						&begin_build_kmeans,
-						&global_minimum_start,
+						&start,
+						&global_start,
 						1,
-						MPI_LONG,
+						MPI_DOUBLE,
 						MPI_MIN,
 						0,
 						MCW
 );
 MPI_Barrier(MCW);
 MPI_Reduce(
-						&end_build_kmeans,
-						&global_maximum_end,
+						&end,
+						&global_end,
 						1,
-						MPI_LONG,
+						MPI_DOUBLE,
 						MPI_MAX,
 						0,
 						MCW
@@ -85,46 +82,42 @@ MPI_Barrier(MCW);
 if (world_rank == 0)
 {
 	printf("\n");
-	printf("begin build = %ld cycles \n",global_minimum_start);
-	printf("end build = %ld cycles \n",global_maximum_end);
-	printf("Cycles to build kmeans structure = %ld \n",(global_maximum_end - global_minimum_start));
-	printf("Time to build kmeans structure = %lf seconds \n",((double)(global_maximum_end - global_minimum_start))/(double)CLOCKS_PER_SEC);
+	printf("Seconds to build kmeans structure = %lf \n",(global_end - global_start));
 }
 
-if (KM_TEST1) displaySelectedFromKM(KM,1,0,1,1,1,1,0);
+
 	//At this point, every process has a local kmeans struct.
 	//The search can now be run.
 /*******************************************************************************************************************/
 
 MPI_Barrier(MCW);
-begin_search_kmeans = clock();
-global_minimum_start = begin_search_kmeans;
+start = MPI_Wtime();
+global_start = start;
 
 struct stackBase * result = initStack(dim);
 int pointsSearched = 0,globPointsSearched = 0;
 pointsSearched = search(KM,query,result);
 
-do {
-	end_search_kmeans = clock();
-}while(end_search_kmeans == begin_search_kmeans);
-global_maximum_end = end_search_kmeans;
+
 MPI_Barrier(MCW);
+end = MPI_Wtime();
+global_end = end;
 
 MPI_Reduce(
-						&begin_search_kmeans,
-						&global_minimum_start,
+						&start,
+						&global_start,
 						1,
-						MPI_LONG,
+						MPI_DOUBLE,
 						MPI_MIN,
 						0,
 						MCW
 );
 MPI_Barrier(MCW);
 MPI_Reduce(
-						&end_search_kmeans,
-						&global_maximum_end,
+						&end,
+						&global_end,
 						1,
-						MPI_LONG,
+						MPI_DOUBLE,
 						MPI_MAX,
 						0,
 						MCW
@@ -144,10 +137,7 @@ MPI_Barrier(MCW);
 if (world_rank == 0)
 {
 	printf("\n");
-	printf("begin search = %ld cycles \n",global_minimum_start);
-	printf("end search = %ld cycles \n",global_maximum_end);
-	printf("Cycles to search kmeans structure = %ld \n",(global_maximum_end - global_minimum_start));
-	printf("Time to search kmeans structure = %lf seconds \n",((double)(global_maximum_end - global_minimum_start))/(double)CLOCKS_PER_SEC);
+	printf("Seconds to search kmeans structure = %lf \n",(global_end - global_start));
 	printf("->>>%d points searched in total.\n",globPointsSearched);
 }
 
@@ -156,8 +146,8 @@ if (world_rank == 0)
 	//Use brute force search to find the nearest point.
 
 	MPI_Barrier(MCW);
-	begin_brute_force_search = clock();
-	global_minimum_start = begin_brute_force_search;
+	start = MPI_Wtime();
+	global_start = start;
 
 	int minLoc,isOneResult;
 	double * LocalBresult = (double *)malloc(sizeof(double)*(dim+1));
@@ -176,27 +166,25 @@ if (world_rank == 0)
 							MPI_COMM_WORLD
 	);
 
-	do {
-		end_brute_force_search = clock();
-	}while(end_brute_force_search == begin_brute_force_search);
-	global_maximum_end = end_brute_force_search;
 	MPI_Barrier(MCW);
+	end = MPI_Wtime();
+	global_end = end;
 
 	MPI_Reduce(
-							&begin_brute_force_search,
-							&global_minimum_start,
+							&start,
+							&global_start,
 							1,
-							MPI_LONG,
+							MPI_DOUBLE,
 							MPI_MIN,
 							0,
 							MCW
 	);
 	MPI_Barrier(MCW);
 	MPI_Reduce(
-							&end_brute_force_search,
-							&global_maximum_end,
+							&end,
+							&global_end,
 							1,
-							MPI_LONG,
+							MPI_DOUBLE,
 							MPI_MAX,
 							0,
 							MCW
@@ -206,10 +194,7 @@ if (world_rank == 0)
 	if (world_rank == 0)
 	{
 		printf("\n");
-		printf("begin brute force search = %ld cycles \n",global_minimum_start);
-		printf("end brute force search = %ld cycles \n",global_maximum_end);
-		printf("Cycles to search kmeans structure = %ld \n",(global_maximum_end - global_minimum_start));
-		printf("Time for brute force search = %lf seconds \n\n",((double)(global_maximum_end - global_minimum_start))/(double)CLOCKS_PER_SEC);
+		printf("Seconds for brute force search = %lf \n",(global_end - global_start));
 	}
 
 
@@ -219,6 +204,7 @@ if (world_rank == 0)
 		struct stackNode * iterator = result->firstNode;
 		minLoc = findMinimum(allDistPoints, (dim+1)*world_size, &absMinDist, dim+1);
 
+		printf("\n");
 		printf("Result stack date: \n");
 		printf("stackDepth = %d, firstNode = %p \n", result->stackDepth,(void *)result->firstNode);
 		printf("distance to query point = %lf \n", result->firstNode->distance);
